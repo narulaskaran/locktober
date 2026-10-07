@@ -82,10 +82,9 @@ async function Today({
         <DayLink
           href={`/c/${slug}?d=${prev}&${metricQuery}`}
           label="Previous day"
+          direction="prev"
           disabled={prev < challenge.startDate}
-        >
-          ←
-        </DayLink>
+        />
         <div className="text-center">
           <p className="font-serif text-3xl leading-none">{formatDay(board.date)}</p>
           {board.date !== board.today ? (
@@ -99,10 +98,9 @@ async function Today({
         <DayLink
           href={`/c/${slug}?d=${next}&${metricQuery}`}
           label="Next day"
+          direction="next"
           disabled={next > challenge.endDate || next > board.today}
-        >
-          →
-        </DayLink>
+        />
       </div>
 
       <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border border-ink bg-paper-2 p-4">

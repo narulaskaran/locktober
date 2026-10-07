@@ -1,4 +1,5 @@
 import { SignIn } from "@clerk/nextjs";
+import { Suspense } from "react";
 import { Wordmark } from "@/components/wordmark";
 
 export default function SignInPage() {
@@ -10,7 +11,14 @@ export default function SignInPage() {
         Google is the fast way in. Email works too, if that is what you have.
       </p>
       <div className="mt-6">
-        <SignIn fallbackRedirectUrl="/home" />
+        <Suspense fallback={<p className="text-sm text-ink-soft">Loading sign in…</p>}>
+          <SignIn
+            routing="path"
+            path="/sign-in"
+            signUpUrl="/sign-up"
+            fallbackRedirectUrl="/home"
+          />
+        </Suspense>
       </div>
     </main>
   );

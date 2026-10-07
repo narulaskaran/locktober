@@ -1,4 +1,5 @@
 import { SignUp } from "@clerk/nextjs";
+import { Suspense } from "react";
 import { Wordmark } from "@/components/wordmark";
 
 export default function SignUpPage() {
@@ -10,7 +11,14 @@ export default function SignUpPage() {
         You only need this once. An invite link drops you onto a board after.
       </p>
       <div className="mt-6">
-        <SignUp fallbackRedirectUrl="/home" />
+        <Suspense fallback={<p className="text-sm text-ink-soft">Loading sign up…</p>}>
+          <SignUp
+            routing="path"
+            path="/sign-up"
+            signInUrl="/sign-in"
+            fallbackRedirectUrl="/home"
+          />
+        </Suspense>
       </div>
     </main>
   );

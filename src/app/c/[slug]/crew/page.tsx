@@ -44,7 +44,7 @@ async function Crew({
         </p>
         <h2 className="mt-2 font-serif text-4xl leading-none">The link</h2>
         <p className="mt-2 text-sm text-ink-soft">
-          Friends sign in with Google, open this, and land on the board. It does not work for anyone else.
+          Anyone with this link can sign in and join. Without it, they can't see the board.
         </p>
         <div className="mt-4">
           <InviteLink code={challenge.inviteCode} />

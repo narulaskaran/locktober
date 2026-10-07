@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
 import { defineConfig } from "prisma/config";
 
-function loadEnvFile(path: string) {
+function readEnvFile(path: string) {
+  const values: Record<string, string> = {};
   try {
     for (const line of readFileSync(path, "utf8").split("\n")) {
       const trimmed = line.trim();
@@ -16,15 +17,21 @@ function loadEnvFile(path: string) {
       ) {
         value = value.slice(1, -1);
       }
-      process.env[key] = value;
+      values[key] = value;
     }
   } catch {
     // Missing env files are fine until a command actually needs the database.
   }
+  return values;
 }
 
-loadEnvFile(".env");
-loadEnvFile(".env.local");
+const fileEnv = {
+  ...readEnvFile(".env"),
+  ...readEnvFile(".env.local"),
+};
+for (const [key, value] of Object.entries(fileEnv)) {
+  if (process.env[key] === undefined) process.env[key] = value;
+}
 
 export default defineConfig({
   schema: "prisma/schema.prisma",

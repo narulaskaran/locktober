@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { CreateForm } from "@/components/create-form";
 import { Wordmark } from "@/components/wordmark";
+import { requireUser } from "@/lib/auth";
 import { defaultWindow } from "@/lib/dates";
 
 export const metadata = { title: "New board" };
 
 export default function NewChallengePage() {
-  const { start, end } = defaultWindow();
   return (
     <div className="mx-auto min-h-screen w-full max-w-xl px-5 py-5">
       <Wordmark href="/home" />
@@ -23,10 +24,17 @@ export default function NewChallengePage() {
         </Link>
       </div>
       <div className="mt-8">
-        <Suspense>
-          <CreateForm start={start} end={end} />
+        <Suspense fallback={<p className="text-sm text-ink-soft">Setting the month…</p>}>
+          <NewChallengeForm />
         </Suspense>
       </div>
     </div>
   );
+}
+
+async function NewChallengeForm() {
+  await connection();
+  await requireUser();
+  const { start, end } = defaultWindow();
+  return <CreateForm start={start} end={end} />;
 }

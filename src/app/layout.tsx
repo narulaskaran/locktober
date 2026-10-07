@@ -55,6 +55,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               borderRadius: "0px",
               fontFamily: "var(--font-geist-sans), sans-serif",
             },
+            elements: {
+              card: {
+                border: "1px solid #1c1712",
+                borderRadius: "0px",
+                boxShadow: "3px 3px 0 #1c1712",
+              },
+              header: { display: "none" },
+              socialButtonsBlockButton: { borderRadius: "0px" },
+              formButtonPrimary: { borderRadius: "0px" },
+              formFieldInput: { borderRadius: "0px" },
+              footer: { background: "#f6f1e7" },
+            },
           }}
         >
           {children}

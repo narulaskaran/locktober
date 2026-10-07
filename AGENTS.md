@@ -19,7 +19,7 @@ Private multi-tenant fitness boards. One repo, one Next.js app. Friends join a c
 - `src/app/challenges/new/page.tsx` — create a board
 - `src/app/c/[slug]/` — today, `month`, `finale`, `crew`
 - `src/app/join/[code]/page.tsx` — public invite preview and join
-- `src/proxy.ts` — Clerk gate. `/`, sign-in, sign-up, and `/join/*` are public
+- `src/proxy.ts` — Clerk session on each request. Pages and actions decide who can see a board
 - `src/server/actions.ts` — mutations. Every one checks membership
 - `src/lib/challenges.ts` — reads. `getChallengeContext` redirects non-members home
 - `src/lib/templates.ts` — starting trackers. Add a template here
@@ -37,7 +37,7 @@ Do not add a public write path. Invite codes are the only way onto a board. Join
 
 ## Next.js 16
 
-`cacheComponents` is on. Anything that reads cookies, Clerk, or the database has to sit inside `<Suspense>`. Auth redirects belong in `src/proxy.ts` (`proxy`, not `middleware`). The route file is `src/proxy.ts`.
+`cacheComponents` is on. Anything that reads cookies, Clerk, the current time, or the database has to sit inside `<Suspense>`. Call `await connection()` from `next/server` before `new Date()`. `src/proxy.ts` runs Clerk (`proxy`, not `middleware`). `requireUser` sends anonymous visitors to sign-in. `getChallengeContext` and the server actions check board membership.
 
 ## Commands
 
