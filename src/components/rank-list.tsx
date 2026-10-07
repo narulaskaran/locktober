@@ -47,8 +47,8 @@ export function RankList({
         return (
           <li
             key={row.id}
-            className={`flex items-center gap-3 border-b border-line py-3 ${
-              row.isYou ? "border-l-2 border-l-ember pl-3" : "pl-1"
+            className={`flex items-center gap-3 border-b border-line px-2 py-3 ${
+              row.isYou ? "bg-paper-2 shadow-[inset_3px_0_0_var(--ember)]" : ""
             }`}
           >
             <span className="flex w-12 shrink-0 items-center justify-end gap-1 font-serif text-lg tabular-nums text-ink-soft">
@@ -106,7 +106,10 @@ export function DayLink({
   );
   if (disabled) {
     return (
-      <span className="inline-flex min-h-11 min-w-11 items-center justify-center border border-line text-ink-soft">
+      <span
+        aria-hidden="true"
+        className="inline-flex min-h-11 min-w-11 items-center justify-center border border-line text-ink-soft/50"
+      >
         {icon}
       </span>
     );

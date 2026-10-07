@@ -3,9 +3,19 @@ import { redirect } from "next/navigation";
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 
-export const requireUser = cache(async () => {
+/**
+ * `returnTo` is where Clerk sends the visitor after signing in, so a shared
+ * board link survives the sign-in detour. It must be a same-site path.
+ */
+export const requireUser = cache(async (returnTo?: string) => {
   const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+  if (!userId) {
+    redirect(
+      returnTo?.startsWith("/") && !returnTo.startsWith("//")
+        ? `/sign-in?redirect_url=${encodeURIComponent(returnTo)}`
+        : "/sign-in",
+    );
+  }
 
   const clerkUser = await currentUser();
   const email = clerkUser?.primaryEmailAddress?.emailAddress ?? null;

@@ -59,3 +59,43 @@ export function defaultWindow(timeZone = "America/New_York") {
 export function daysBetween(start: string, end: string) {
   return eachDay(start, end).length;
 }
+
+export type BoardProgress =
+  | { state: "upcoming"; day: 0; total: number; startsIn: number }
+  | { state: "live"; day: number; total: number }
+  | { state: "done"; day: number; total: number };
+
+export function boardProgress(start: string, end: string, today: string): BoardProgress {
+  const total = daysBetween(start, end);
+  if (today < start) {
+    return { state: "upcoming", day: 0, total, startsIn: daysBetween(today, start) - 1 };
+  }
+  if (today > end) return { state: "done", day: total, total };
+  return { state: "live", day: daysBetween(start, today), total };
+}
+
+export type ProgressPhrases = {
+  startsTomorrow: string;
+  startsIn: string;
+  finished: string;
+  dayOf: string;
+};
+
+const englishProgress: ProgressPhrases = {
+  startsTomorrow: "Starts tomorrow",
+  startsIn: "Starts in {count} days",
+  finished: "Finished",
+  dayOf: "Day {day} of {total}",
+};
+
+export function progressLabel(progress: BoardProgress, phrases: ProgressPhrases = englishProgress) {
+  if (progress.state === "upcoming") {
+    return progress.startsIn <= 1
+      ? phrases.startsTomorrow
+      : phrases.startsIn.replaceAll("{count}", String(progress.startsIn));
+  }
+  if (progress.state === "done") return phrases.finished;
+  return phrases.dayOf
+    .replaceAll("{day}", String(progress.day))
+    .replaceAll("{total}", String(progress.total));
+}

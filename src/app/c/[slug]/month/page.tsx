@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { LoadingLine } from "@/components/loading-line";
+import { MonthChart } from "@/components/month-chart";
 import { Pumpkin } from "@/components/pumpkin";
 import { getChallengeContext, loadDailyBoard, rankBy } from "@/lib/challenges";
 import { fill } from "@/lib/copy";
+import { formatDay } from "@/lib/dates";
 import { displayName, formatValue } from "@/lib/format";
+import { memberColor } from "@/lib/palette";
+import { chipOff, chipOn } from "@/lib/styles";
 import { getVoice } from "@/lib/voice";
 
 function one(value: string | string[] | undefined) {
@@ -48,94 +52,141 @@ async function Month({
     );
   }
 
-  const ranked = rankBy(board.rows, board.metric.higherIsBetter, "total");
+  const metric = board.metric;
+  const summable = metric.input !== "DURATION";
+  const unit = summable && metric.unit ? metric.unit : "";
+  const ranked = rankBy(board.rows, metric.higherIsBetter, "total");
+  const colors = new Map(
+    board.rows.map((row, index) => [row.member.userId, memberColor(index, row.member.isYou)]),
+  );
+  const you = board.rows.find((row) => row.member.isYou);
+  const yourDays = you ? Object.values(you.byDay).filter((value) => value > 0) : [];
+  const crewTotal = board.rows.reduce((sum, row) => sum + row.total, 0);
 
   return (
     <section className="mt-8">
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <h2 className="font-serif text-4xl leading-none">{copy.month.title}</h2>
-          <p className="mt-2 text-sm text-ink-soft">{copy.month.blurb}</p>
-        </div>
-      </div>
+      <h2 className="font-serif text-4xl leading-none">{copy.month.title}</h2>
+      <p className="mt-2 text-sm text-ink-soft">{copy.month.blurb}</p>
 
       {dailies.length > 1 ? (
         <div className="mt-4 flex gap-2 overflow-x-auto">
-          {dailies.map((metric) => {
-            const active = metric.id === board.metric?.id;
+          {dailies.map((item) => {
+            const active = item.id === metric.id;
             return (
               <Link
-                key={metric.id}
-                href={`/c/${slug}/month?m=${metric.slug}`}
-                className={`shrink-0 border border-ink px-3 py-2 text-sm ${
-                  active ? "bg-ink text-paper" : "bg-paper-2"
-                }`}
+                key={item.id}
+                href={`/c/${slug}/month?m=${item.slug}`}
+                aria-current={active ? "true" : undefined}
+                className={`shrink-0 ${active ? chipOn : chipOff}`}
               >
-                {metric.name}
+                {item.name}
               </Link>
             );
           })}
         </div>
       ) : null}
 
-      <ol className="mt-6 border-t border-ink">
+      {summable && crewTotal > 0 ? (
+        <>
+          <dl className="mt-6 grid grid-cols-3 border border-ink bg-paper-2">
+            <Stat label={copy.month.crewTotal} value={formatValue(crewTotal, metric.input)} unit={unit} />
+            <Stat
+              label={copy.month.yourAvg}
+              value={yourDays.length ? formatValue((you?.total ?? 0) / yourDays.length, metric.input) : "—"}
+              unit={yourDays.length ? unit : ""}
+              divided
+            />
+            <Stat
+              label={copy.month.bestDay}
+              value={yourDays.length ? formatValue(Math.max(...yourDays), metric.input) : "—"}
+              unit={unit}
+              divided
+            />
+          </dl>
+          <MonthChart
+            days={board.days}
+            today={board.today}
+            input={metric.input}
+            unit={metric.unit}
+            leadPhrase={copy.month.chart}
+            todayLabel={copy.month.today}
+            series={board.rows.map((row) => ({
+              id: row.member.userId,
+              name: displayName(row.member.name, row.member.nickname, copy.athlete),
+              color: colors.get(row.member.userId)!,
+              isYou: row.member.isYou,
+              byDay: row.byDay,
+            }))}
+          />
+        </>
+      ) : null}
+
+      <ol className="mt-8 border-t border-ink">
         {ranked.map((row) => {
           const name = displayName(row.member.name, row.member.nickname, copy.athlete);
           const harvested = Object.values(row.byDay).some((value) => value > 0);
           return (
             <li key={row.member.userId} className="border-b border-line py-4">
               <div className="flex items-baseline justify-between gap-3">
-                <p className="min-w-0 truncate">
-                  <span className="mr-2 inline-flex w-12 items-center justify-end gap-1 align-middle font-serif text-ink-soft">
+                <p className="flex min-w-0 items-center gap-2">
+                  <span className="flex w-12 shrink-0 items-center justify-end gap-1 font-serif text-lg text-ink-soft">
                     {row.rank === 1 && harvested ? <Pumpkin size={16} /> : null}
                     {row.rank ?? "–"}
                   </span>
-                  <span className="font-medium">{name}</span>
-                  {row.member.isYou ? (
-                    <span className="ml-2 text-xs text-ink-soft">{copy.you}</span>
+                  {summable ? (
+                    <span
+                      aria-hidden="true"
+                      className="size-2.5 shrink-0"
+                      style={{ background: colors.get(row.member.userId) }}
+                    />
                   ) : null}
+                  <span className="truncate font-medium">{name}</span>
+                  {row.member.isYou ? <span className="text-xs text-ink-soft">{copy.you}</span> : null}
                 </p>
                 <p className="font-serif text-4xl leading-none tabular-nums">
-                  {formatValue(row.total, board.metric!.input)}
-                  {board.metric!.input !== "DURATION" && board.metric!.unit ? (
-                    <span className="ml-1 font-sans text-xs text-ink-soft">{board.metric!.unit}</span>
+                  {formatValue(row.total, metric.input)}
+                  {unit ? (
+                    <span className="ml-1 font-sans text-xs text-ink-soft">{unit}</span>
                   ) : null}
                 </p>
               </div>
               <div
-                className="mt-3 grid gap-1"
+                className="mt-3 grid gap-px sm:gap-1"
                 style={{ gridTemplateColumns: `repeat(${Math.max(board.days.length, 1)}, minmax(0, 1fr))` }}
               >
                 {board.days.map((day) => {
                   const value = row.byDay[day];
                   const logged = value !== undefined;
-                  const harvested = logged && value > 0;
+                  const future = day > board.today;
+                  const label = logged
+                    ? fill(copy.month.tipLogged, {
+                        day: formatDay(day),
+                        value: formatValue(value, metric.input),
+                      })
+                    : future
+                      ? fill(copy.month.tipFuture, { day: formatDay(day) })
+                      : fill(copy.month.tipEmpty, { day: formatDay(day) });
                   return (
                     <Link
                       key={day}
-                      href={`/c/${slug}?d=${day}&m=${board.metric!.slug}`}
-                      title={
-                        logged
-                          ? fill(copy.month.tipLogged, {
-                              day,
-                              value: formatValue(value, board.metric!.input),
-                            })
-                          : fill(copy.month.tipEmpty, { day })
-                      }
-                      aria-label={
-                        logged
-                          ? fill(copy.month.logged, { day })
-                          : fill(copy.month.notLogged, { day })
-                      }
+                      href={`/c/${slug}?d=${day}&m=${metric.slug}`}
+                      title={label}
+                      aria-label={label}
                       className="flex min-h-11 items-end"
                     >
                       <span
                         aria-hidden="true"
                         className={`relative block h-4 w-full ${
-                          !logged ? "bg-line" : value === 0 ? "bg-ink-soft" : "bg-ember"
-                        }`}
+                          logged
+                            ? value === 0
+                              ? "bg-ink-soft"
+                              : "bg-ember"
+                            : future
+                              ? "border border-line"
+                              : "bg-line"
+                        } ${day === board.today ? "outline outline-2 outline-offset-2 outline-ink" : ""}`}
                       >
-                        {harvested ? (
+                        {logged && value > 0 ? (
                           <span className="absolute bottom-full left-1/2 h-1.5 w-0.5 -translate-x-1/2 bg-moss" />
                         ) : null}
                       </span>
@@ -148,5 +199,27 @@ async function Month({
         })}
       </ol>
     </section>
+  );
+}
+
+function Stat({
+  label,
+  value,
+  unit,
+  divided,
+}: {
+  label: string;
+  value: string;
+  unit?: string;
+  divided?: boolean;
+}) {
+  return (
+    <div className={`px-3 py-3 ${divided ? "border-l border-line" : ""}`}>
+      <dt className="text-[11px] uppercase tracking-[0.12em] text-ink-soft">{label}</dt>
+      <dd className="mt-1 font-serif text-3xl leading-none tabular-nums">
+        {value}
+        {unit ? <span className="ml-1 font-sans text-[11px] text-ink-soft">{unit}</span> : null}
+      </dd>
+    </div>
   );
 }

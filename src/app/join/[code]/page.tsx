@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -11,6 +12,14 @@ import { prisma } from "@/lib/prisma";
 import { btnEmber, btnGhost, card } from "@/lib/styles";
 import { joinChallenge } from "@/server/actions";
 import { getVoice } from "@/lib/voice";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { copy } = await getVoice();
+  return {
+    title: copy.join.invited,
+    robots: { index: false, follow: false },
+  };
+}
 
 export default function JoinPage({ params }: { params: Promise<{ code: string }> }) {
   return (

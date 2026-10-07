@@ -5,7 +5,7 @@ import { Pumpkin } from "@/components/pumpkin";
 import { Wordmark } from "@/components/wordmark";
 import { loadHome } from "@/lib/challenges";
 import { fill, type Copy } from "@/lib/copy";
-import { formatRange } from "@/lib/dates";
+import { formatRange, progressLabel } from "@/lib/dates";
 import { formatValue } from "@/lib/format";
 import { btnEmber, btnGhost, card } from "@/lib/styles";
 import { getVoice } from "@/lib/voice";
@@ -82,7 +82,7 @@ async function Home({
                   </span>
                 </div>
                 <p className="mt-2 text-sm text-ink-soft">
-                  {formatRange(cardItem.start, cardItem.end)}
+                  {formatRange(cardItem.start, cardItem.end)} · {progressLabel(cardItem.progress, copy.header)}
                 </p>
                 {cardItem.metricName ? (
                   <div className="mt-4 flex items-end justify-between gap-4 border-t border-line pt-3">
@@ -108,6 +108,14 @@ async function Home({
                 ) : (
                   <p className="mt-4 text-sm text-ink-soft">{copy.home.noDaily}</p>
                 )}
+                {cardItem.metricName &&
+                cardItem.progress.state === "live" &&
+                !cardItem.loggedToday ? (
+                  <p className="-mx-4 -mb-4 mt-4 flex items-center justify-between border-t border-ember bg-ember px-4 py-3 text-sm font-medium text-paper">
+                    <span>{fill(copy.home.logToday, { name: cardItem.metricName.toLowerCase() })}</span>
+                    <span aria-hidden="true">→</span>
+                  </p>
+                ) : null}
               </Link>
             </li>
           ))}

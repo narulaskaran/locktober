@@ -42,13 +42,16 @@ body {
   color: #f6f1e7;
 }
 
-input,
-select,
-textarea,
-button {
-  font: inherit;
-}
+/* Unlayered rules beat Tailwind's utility layer, so form resets live in base. */
+@layer base {
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
 
-input[type="date"] {
-  min-height: 2.75rem;
+  input[type="date"] {
+    min-height: 2.75rem;
+  }
 }

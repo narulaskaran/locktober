@@ -32,6 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: copy.meta.titleTemplate,
     },
     description: copy.meta.description,
+    appleWebApp: { capable: true, title: copy.brand, statusBarStyle: "default" },
   };
 }
 

@@ -6,10 +6,12 @@ Boards are invite-only. Someone makes a challenge, sends a link, and friends sig
 
 ## What a board tracks
 
-- **Today.** A leaderboard for the day you pick, including days you still need to backfill.
-- **Month.** Cumulative volume, plus a strip of which days each person logged.
+- **Today.** A leaderboard for the day you pick, including days you still need to backfill. Do your push-ups in sets and tap "Add" to stack them onto the day's total.
+- **Month.** A running-total chart per person, crew and personal stats, and a strip of which days each person logged.
 - **Finale.** One score per event. Higher wins, except timed events, where lower wins.
-- **Crew.** The invite link, nicknames, and extra trackers (steps, miles, pull-ups, whatever you add).
+- **Crew.** The invite link (with a native share sheet on phones), nicknames, and extra trackers (steps, miles, pull-ups, whatever you add).
+
+It installs to a phone home screen: open the site, then Share, then Add to Home Screen.
 
 New boards start from a template: push-up month, a broader daily grind, or a presidential-style finale. The owner can add or remove trackers later.
 

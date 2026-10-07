@@ -49,7 +49,7 @@ async function Crew({
         <h2 className="mt-2 font-serif text-4xl leading-none">{copy.crew.linkTitle}</h2>
         <p className="mt-2 text-sm text-ink-soft">{copy.crew.linkBody}</p>
         <div className="mt-4">
-          <InviteLink code={challenge.inviteCode} />
+          <InviteLink code={challenge.inviteCode} boardName={challenge.name} />
         </div>
         {isOwner ? (
           <form action={rotateInvite} className="mt-4">
