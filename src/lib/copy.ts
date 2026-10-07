@@ -1,5 +1,5 @@
 export const english = {
-  brand: "Loctober",
+  brand: "Locktober",
   brandTag: "the board",
   athlete: "Athlete",
   you: "You",
@@ -7,8 +7,8 @@ export const english = {
   people: "{count} people",
   thisMonth: "{amount} this month",
   meta: {
-    title: "Loctober",
-    titleTemplate: "%s · Loctober",
+    title: "Locktober",
+    titleTemplate: "%s · Locktober",
     description:
       "A private scoreboard for a month-long lock-in. Daily volume, a running total, and one finale.",
   },
@@ -41,7 +41,7 @@ export const english = {
   landing: {
     kicker: "October, locked in",
     hero: "A month on the board.",
-    lede: "Loctober is a private scoreboard for the people you actually train with. Log the day, watch the month add up, and settle it with one finale.",
+    lede: "Locktober is a private scoreboard for the people you actually train with. Log the day, watch the month add up, and settle it with one finale.",
     start: "Start a board",
     signIn: "Sign in",
     yourBoards: "Your boards",
@@ -239,8 +239,8 @@ export const english = {
     copied: "Copied",
     copy: "Copy link",
     share: "Share invite",
-    shareTitle: "{name} on Loctober",
-    shareText: "Join \"{name}\" on Loctober. Sign in and you're on the board.",
+    shareTitle: "{name} on Locktober",
+    shareText: "Join \"{name}\" on Locktober. Sign in and you're on the board.",
   },
   templates: {
     pushups: {

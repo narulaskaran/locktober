@@ -1,4 +1,4 @@
-# Loctober
+# Locktober
 
 Private fitness challenge boards. See `README.md` for what the product does and `AGENTS.md` for how to change it.
 
