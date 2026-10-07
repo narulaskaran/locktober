@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Loctober",
-    short_name: "Loctober",
+    name: "Locktober",
+    short_name: "Locktober",
     description: "A private scoreboard for a month-long lock-in.",
     start_url: "/home",
     display: "standalone",

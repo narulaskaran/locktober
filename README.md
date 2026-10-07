@@ -1,4 +1,4 @@
-# Loctober
+# Locktober
 
 A private scoreboard for a month-long lock-in. You and your people log the daily work, watch the month add up, and close it with one finale — a max set, or the presidential test.
 

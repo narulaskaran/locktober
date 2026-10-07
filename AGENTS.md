@@ -8,7 +8,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Loctober
+# Locktober
 
 Private multi-tenant fitness boards. One repo, one Next.js app. Friends join a challenge with an invite link after signing in with Clerk. They cannot see boards they were not invited to.
 
