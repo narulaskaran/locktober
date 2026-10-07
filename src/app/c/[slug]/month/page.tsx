@@ -52,8 +52,8 @@ async function Month({
         <div>
           <h2 className="font-serif text-4xl leading-none">Month volume</h2>
           <p className="mt-2 text-sm text-ink-soft">
-            Every logged day, added up. Ember marks a logged day. Blank squares are days with no
-            number.
+            Every logged day, added up. Ember is a day above zero. A muted square is a zero. Blank
+            squares are days with no number.
           </p>
         </div>
       </div>
