@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #efe8dc;
+  --paper-2: #f6f1e7;
+  --ink: #1c1712;
+  --ink-soft: #5e564c;
+  --line: #d7cec1;
+  --ember: #e23b14;
+  --ember-deep: #b42c0c;
+  --moss: #215c38;
+  --danger: #8d1d1d;
+  color-scheme: light;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-instrument);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-ember: var(--ember);
+  --color-ember-deep: var(--ember-deep);
+  --color-moss: var(--moss);
+  --color-danger: var(--danger);
+}
+
+body {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(900px 420px at 0% -10%, rgb(226 59 20 / 0.08), transparent 55%),
+    radial-gradient(700px 380px at 100% 0%, rgb(165 107 18 / 0.07), transparent 50%);
+  color: var(--ink);
+  font-family: var(--font-sans), sans-serif;
+}
+
+::selection {
+  background: #1c1712;
+  color: #f6f1e7;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input[type="date"] {
+  min-height: 2.75rem;
+}

@@ -1,0 +1,33 @@
+"use client";
+
+import { useState } from "react";
+import { btnInk } from "@/lib/styles";
+
+export function InviteLink({ code }: { code: string }) {
+  const url =
+    typeof window === "undefined" ? "" : `${window.location.origin}/join/${code}`;
+  const [copied, setCopied] = useState(false);
+
+  async function copy() {
+    if (!url) return;
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1600);
+  }
+
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row">
+      <input
+        readOnly
+        suppressHydrationWarning
+        value={url || "Preparing link…"}
+        aria-label="Invite link"
+        className="min-h-11 w-full border border-ink bg-paper px-3 text-sm"
+        onFocus={(event) => event.currentTarget.select()}
+      />
+      <button type="button" className={btnInk} onClick={copy}>
+        {copied ? "Copied" : "Copy link"}
+      </button>
+    </div>
+  );
+}

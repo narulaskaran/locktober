@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MemberRole {
+  OWNER
+  MEMBER
+}
+
+enum MetricKind {
+  DAILY
+  FINALE
+}
+
+enum MetricInput {
+  COUNT
+  DECIMAL
+  DURATION
+}
+
+model User {
+  id        String   @id
+  email     String?
+  name      String
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships   ChallengeMember[]
+  entries       Entry[]
+  finaleEntries FinaleEntry[]
+}
+
+model Challenge {
+  id         String   @id @default(cuid())
+  name       String
+  slug       String   @unique
+  startDate  DateTime @db.Date
+  endDate    DateTime @db.Date
+  timezone   String
+  inviteCode String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  members       ChallengeMember[]
+  metrics       Metric[]
+  entries       Entry[]
+  finaleEntries FinaleEntry[]
+}
+
+model ChallengeMember {
+  id          String     @id @default(cuid())
+  challengeId String
+  userId      String
+  role        MemberRole @default(MEMBER)
+  nickname    String?
+  joinedAt    DateTime   @default(now())
+
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([challengeId, userId])
+  @@index([userId])
+}
+
+model Metric {
+  id             String      @id @default(cuid())
+  challengeId    String
+  name           String
+  slug           String
+  unit           String
+  kind           MetricKind
+  input          MetricInput @default(COUNT)
+  higherIsBetter Boolean     @default(true)
+  sortOrder      Int         @default(0)
+  createdAt      DateTime    @default(now())
+
+  challenge     Challenge     @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  entries       Entry[]
+  finaleEntries FinaleEntry[]
+
+  @@unique([challengeId, slug])
+  @@index([challengeId, kind])
+}
+
+model Entry {
+  id          String   @id @default(cuid())
+  challengeId String
+  metricId    String
+  userId      String
+  date        DateTime @db.Date
+  value       Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  metric    Metric    @relation(fields: [metricId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([metricId, userId, date])
+  @@index([challengeId, date])
+}
+
+model FinaleEntry {
+  id          String   @id @default(cuid())
+  challengeId String
+  metricId    String
+  userId      String
+  value       Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  metric    Metric    @relation(fields: [metricId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([metricId, userId])
+  @@index([challengeId])
+}
