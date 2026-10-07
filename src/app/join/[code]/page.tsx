@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { LoadingLine } from "@/components/loading-line";
+import { PumpkinPatch } from "@/components/pumpkin";
 import { Wordmark } from "@/components/wordmark";
 import { fill } from "@/lib/copy";
 import { formatRange, fromDbDate } from "@/lib/dates";
@@ -92,6 +93,9 @@ async function Join({ params }: { params: Promise<{ code: string }> }) {
             </Link>
           </div>
         )}
+      </div>
+      <div className="mt-auto flex justify-end pt-12" aria-hidden="true">
+        <PumpkinPatch compact />
       </div>
     </main>
   );

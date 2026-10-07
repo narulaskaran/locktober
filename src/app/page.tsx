@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Pumpkin, PumpkinPatch } from "@/components/pumpkin";
 import { Wordmark } from "@/components/wordmark";
 import { fill } from "@/lib/copy";
 import { btnEmber, btnGhost, card } from "@/lib/styles";
@@ -39,6 +40,10 @@ async function Landing() {
           <h1 className="mt-4 max-w-xl font-serif text-6xl leading-[0.9] tracking-tight sm:text-8xl">
             {copy.landing.hero}
           </h1>
+          <div className="mt-8 w-fit" aria-hidden="true">
+            <PumpkinPatch />
+            <div className="mt-1 h-px bg-ink" />
+          </div>
           <p className="mt-6 max-w-md text-lg leading-relaxed text-ink-soft">
             {copy.landing.lede}
           </p>
@@ -76,7 +81,10 @@ async function Landing() {
           <ol className="mt-4 border-t border-ink">
             {sample.map((row) => (
               <li key={row.name} className="flex items-center gap-3 border-b border-line py-3">
-                <span className="w-5 font-serif text-ink-soft">{row.rank}</span>
+                <span className="flex w-9 shrink-0 items-center justify-end gap-1 font-serif text-ink-soft">
+                  {row.rank === "1" ? <Pumpkin size={16} /> : null}
+                  {row.rank}
+                </span>
                 <span className="flex-1 font-medium">{row.name}</span>
                 <span className="text-right">
                   <span className="block font-serif text-3xl leading-none">{row.today}</span>

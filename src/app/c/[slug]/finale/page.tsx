@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { LoadingLine } from "@/components/loading-line";
+import { Pumpkin } from "@/components/pumpkin";
 import { RankList } from "@/components/rank-list";
 import { ScoreForm } from "@/components/score-form";
 import { loadFinaleBoard } from "@/lib/challenges";
@@ -22,7 +23,8 @@ async function Finale({ params }: { params: Promise<{ slug: string }> }) {
   if (board.events.length === 0) {
     return (
       <section className="mt-8">
-        <h2 className="font-serif text-4xl">{copy.finale.emptyTitle}</h2>
+        <Pumpkin size={48} />
+        <h2 className="mt-4 font-serif text-4xl">{copy.finale.emptyTitle}</h2>
         <p className="mt-2 text-sm text-ink-soft">{copy.finale.emptyBody}</p>
       </section>
     );

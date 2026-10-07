@@ -110,7 +110,8 @@ export const english = {
   month: {
     needTracker: "Add a daily tracker from the crew page.",
     title: "Month volume",
-    blurb: "Every logged day, added up. Blank squares are days with no number.",
+    blurb:
+      "Every logged day, added up. Ember is a day above zero. A muted square is a zero. Blank squares are days with no number.",
     logged: "{day} logged",
     notLogged: "{day} not logged",
     tipLogged: "{day}: {value}",
@@ -388,7 +389,8 @@ export const minion = {
   month: {
     needTracker: "Papoy day tracker from da boss page.",
     title: "Banana moon",
-    blurb: "Every banana day, stack stack. Empty square mean bi-do.",
+    blurb:
+      "Every banana day, stack stack. Ember mean more than zero. Muted square mean zero. Empty square mean bi-do.",
     logged: "{day} banana",
     notLogged: "{day} bi-do",
     tipLogged: "{day}: {value}",

@@ -1,6 +1,7 @@
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Pumpkin } from "@/components/pumpkin";
 import { Wordmark } from "@/components/wordmark";
 import { loadHome } from "@/lib/challenges";
 import { fill, type Copy } from "@/lib/copy";
@@ -60,7 +61,8 @@ async function Home({
       ) : null}
       {cards.length === 0 ? (
         <div className={`${card} mt-8 p-5`}>
-          <h2 className="font-serif text-3xl">{copy.home.emptyTitle}</h2>
+          <Pumpkin size={56} />
+          <h2 className="mt-4 font-serif text-3xl">{copy.home.emptyTitle}</h2>
           <p className="mt-2 text-sm text-ink-soft">{copy.home.emptyBody}</p>
           <Link href="/challenges/new" className={`${btnGhost} mt-5`}>
             {copy.home.start}
