@@ -2,6 +2,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { Suspense } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import { CopyProvider } from "@/components/copy-provider";
 import { MinionToggle } from "@/components/minion-toggle";
 import { getVoice } from "@/lib/voice";
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <VoicedShell>{children}</VoicedShell>
           </Suspense>
         </ClerkProvider>
+        <Analytics />
       </body>
     </html>
   );
