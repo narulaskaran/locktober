@@ -78,19 +78,28 @@ export function RankList({
 
 export function DayLink({
   href,
-  children,
   label,
   disabled,
+  direction,
 }: {
   href: string;
-  children: string;
   label: string;
   disabled?: boolean;
+  direction: "prev" | "next";
 }) {
+  const icon = (
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path
+        d={direction === "prev" ? "M15 5 L8 12 L15 19" : "M9 5 L16 12 L9 19"}
+        stroke="currentColor"
+        strokeWidth="1.75"
+      />
+    </svg>
+  );
   if (disabled) {
     return (
       <span className="inline-flex min-h-11 min-w-11 items-center justify-center border border-line text-ink-soft">
-        {children}
+        {icon}
       </span>
     );
   }
@@ -100,7 +109,7 @@ export function DayLink({
       aria-label={label}
       className="inline-flex min-h-11 min-w-11 items-center justify-center border border-ink bg-paper-2"
     >
-      {children}
+      {icon}
     </Link>
   );
 }

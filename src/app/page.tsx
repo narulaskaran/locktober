@@ -31,7 +31,7 @@ async function Landing() {
         </Suspense>
       </header>
 
-      <main className="grid flex-1 items-end gap-12 py-12 lg:grid-cols-[1.1fr_0.9fr] lg:py-16">
+      <main className="grid items-center gap-12 py-14 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-ember">
             {copy.landing.kicker}

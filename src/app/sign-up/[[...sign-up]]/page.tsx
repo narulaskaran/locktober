@@ -19,7 +19,14 @@ async function SignUpCopy() {
       <h1 className="mt-10 font-serif text-4xl">{copy.auth.signUpTitle}</h1>
       <p className="mt-2 text-sm text-ink-soft">{copy.auth.signUpBody}</p>
       <div className="mt-6">
-        <SignUp fallbackRedirectUrl="/home" />
+        <Suspense fallback={<p className="text-sm text-ink-soft">{copy.auth.signUpLoading}</p>}>
+          <SignUp
+            routing="path"
+            path="/sign-up"
+            signInUrl="/sign-in"
+            fallbackRedirectUrl="/home"
+          />
+        </Suspense>
       </div>
     </main>
   );

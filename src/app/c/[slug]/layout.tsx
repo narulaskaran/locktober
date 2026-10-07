@@ -41,7 +41,9 @@ async function ChallengeHeader({ params }: { params: Promise<{ slug: string }> }
           {copy.header.allBoards}
         </Link>
       </div>
-      <ChallengeTabs slug={slug} />
+      <Suspense fallback={<div className="mt-6 h-14 bg-line md:h-10 md:w-80" />}>
+        <ChallengeTabs slug={slug} />
+      </Suspense>
     </header>
   );
 }

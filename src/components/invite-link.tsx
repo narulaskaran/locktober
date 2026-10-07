@@ -27,7 +27,7 @@ export function InviteLink({ code }: { code: string }) {
         className="min-h-11 w-full border border-ink bg-paper px-3 text-sm"
         onFocus={(event) => event.currentTarget.select()}
       />
-      <button type="button" className={btnInk} onClick={copyLink}>
+      <button type="button" className={`${btnInk} shrink-0 whitespace-nowrap`} onClick={copyLink}>
         {copied ? text.invite.copied : text.invite.copy}
       </button>
     </div>
