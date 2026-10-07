@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Avatar } from "@/components/avatar";
+import { Pumpkin } from "@/components/pumpkin";
 import { displayName, formatValue } from "@/lib/format";
 import type { MetricInput } from "@/generated/prisma/client";
 
@@ -26,13 +27,19 @@ export function RankList({
   empty: string;
 }) {
   if (rows.length === 0) {
-    return <p className="text-sm text-ink-soft">{empty}</p>;
+    return (
+      <div className="flex items-center gap-3 border-t border-ink py-4">
+        <Pumpkin size={32} />
+        <p className="text-sm text-ink-soft">{empty}</p>
+      </div>
+    );
   }
 
   return (
     <ol className="border-t border-ink">
       {rows.map((row) => {
         const name = displayName(row.name, row.nickname);
+        const leader = row.rank === 1 && row.amount !== null && row.amount > 0;
         return (
           <li
             key={row.id}
@@ -40,7 +47,8 @@ export function RankList({
               row.isYou ? "border-l-2 border-l-ember pl-3" : "pl-1"
             }`}
           >
-            <span className="w-6 font-serif text-lg tabular-nums text-ink-soft">
+            <span className="flex w-12 shrink-0 items-center justify-end gap-1 font-serif text-lg tabular-nums text-ink-soft">
+              {leader ? <Pumpkin size={18} /> : null}
               {row.rank ?? "–"}
             </span>
             <Avatar name={name} imageUrl={row.imageUrl} />

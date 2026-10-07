@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Pumpkin } from "@/components/pumpkin";
 import { RankList } from "@/components/rank-list";
 import { ScoreForm } from "@/components/score-form";
 import { loadFinaleBoard } from "@/lib/challenges";
@@ -19,7 +20,8 @@ async function Finale({ params }: { params: Promise<{ slug: string }> }) {
   if (board.events.length === 0) {
     return (
       <section className="mt-8">
-        <h2 className="font-serif text-4xl">No finale yet.</h2>
+        <Pumpkin size={48} />
+        <h2 className="mt-4 font-serif text-4xl">No finale yet.</h2>
         <p className="mt-2 text-sm text-ink-soft">
           The owner can add one from the crew page. A max set of push-ups is the usual closer.
         </p>

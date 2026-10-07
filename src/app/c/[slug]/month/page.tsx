@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { Pumpkin } from "@/components/pumpkin";
 import { getChallengeContext, loadDailyBoard, rankBy } from "@/lib/challenges";
 import { displayName, formatValue } from "@/lib/format";
 
@@ -35,7 +36,12 @@ async function Month({
   const dailies = challenge.metrics.filter((metric) => metric.kind === "DAILY");
 
   if (!board.metric) {
-    return <p className="mt-8 text-sm text-ink-soft">Add a daily tracker from the crew page.</p>;
+    return (
+      <section className="mt-8">
+        <Pumpkin size={48} />
+        <p className="mt-4 text-sm text-ink-soft">Add a daily tracker from the crew page.</p>
+      </section>
+    );
   }
 
   const ranked = rankBy(board.rows, board.metric.higherIsBetter, "total");
@@ -46,7 +52,8 @@ async function Month({
         <div>
           <h2 className="font-serif text-4xl leading-none">Month volume</h2>
           <p className="mt-2 text-sm text-ink-soft">
-            Every logged day, added up. Blank squares are days with no number.
+            Every logged day, added up. Ember is a day above zero. A muted square is a zero. Blank
+            squares are days with no number.
           </p>
         </div>
       </div>
@@ -73,11 +80,15 @@ async function Month({
       <ol className="mt-6 border-t border-ink">
         {ranked.map((row) => {
           const name = displayName(row.member.name, row.member.nickname);
+          const harvested = Object.values(row.byDay).some((value) => value > 0);
           return (
             <li key={row.member.userId} className="border-b border-line py-4">
               <div className="flex items-baseline justify-between gap-3">
                 <p className="min-w-0 truncate">
-                  <span className="mr-2 font-serif text-ink-soft">{row.rank ?? "–"}</span>
+                  <span className="mr-2 inline-flex w-12 items-center justify-end gap-1 align-middle font-serif text-ink-soft">
+                    {row.rank === 1 && harvested ? <Pumpkin size={16} /> : null}
+                    {row.rank ?? "–"}
+                  </span>
                   <span className="font-medium">{name}</span>
                   {row.member.isYou ? <span className="ml-2 text-xs text-ink-soft">You</span> : null}
                 </p>
@@ -95,6 +106,7 @@ async function Month({
                 {board.days.map((day) => {
                   const value = row.byDay[day];
                   const logged = value !== undefined;
+                  const harvested = logged && value > 0;
                   return (
                     <Link
                       key={day}
@@ -105,10 +117,19 @@ async function Month({
                           : `${day}: not logged`
                       }
                       aria-label={logged ? `${day} logged` : `${day} not logged`}
-                      className={`h-4 ${
-                        value === undefined ? "bg-line" : value === 0 ? "bg-ink-soft" : "bg-ink"
-                      }`}
-                    />
+                      className="flex min-h-11 items-end"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`relative block h-4 w-full ${
+                          !logged ? "bg-line" : value === 0 ? "bg-ink-soft" : "bg-ember"
+                        }`}
+                      >
+                        {harvested ? (
+                          <span className="absolute bottom-full left-1/2 h-1.5 w-0.5 -translate-x-1/2 bg-moss" />
+                        ) : null}
+                      </span>
+                    </Link>
                   );
                 })}
               </div>

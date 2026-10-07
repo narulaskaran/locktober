@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { PumpkinPatch } from "@/components/pumpkin";
 import { Wordmark } from "@/components/wordmark";
 import { formatRange, fromDbDate } from "@/lib/dates";
 import { prisma } from "@/lib/prisma";
@@ -80,6 +81,9 @@ async function Join({ params }: { params: Promise<{ code: string }> }) {
             </Link>
           </div>
         )}
+      </div>
+      <div className="mt-auto flex justify-end pt-12" aria-hidden="true">
+        <PumpkinPatch compact />
       </div>
     </main>
   );
