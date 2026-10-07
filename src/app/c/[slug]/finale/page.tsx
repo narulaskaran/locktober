@@ -1,12 +1,14 @@
 import { Suspense } from "react";
+import { LoadingLine } from "@/components/loading-line";
 import { RankList } from "@/components/rank-list";
 import { ScoreForm } from "@/components/score-form";
 import { loadFinaleBoard } from "@/lib/challenges";
 import { card } from "@/lib/styles";
+import { getVoice } from "@/lib/voice";
 
 export default function FinalePage({ params }: { params: Promise<{ slug: string }> }) {
   return (
-    <Suspense fallback={<p className="mt-8 text-sm text-ink-soft">Loading the finale…</p>}>
+    <Suspense fallback={<LoadingLine page="finale" />}>
       <Finale params={params} />
     </Suspense>
   );
@@ -14,15 +16,14 @@ export default function FinalePage({ params }: { params: Promise<{ slug: string 
 
 async function Finale({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const { copy } = await getVoice();
   const board = await loadFinaleBoard(slug);
 
   if (board.events.length === 0) {
     return (
       <section className="mt-8">
-        <h2 className="font-serif text-4xl">No finale yet.</h2>
-        <p className="mt-2 text-sm text-ink-soft">
-          The owner can add one from the crew page. A max set of push-ups is the usual closer.
-        </p>
+        <h2 className="font-serif text-4xl">{copy.finale.emptyTitle}</h2>
+        <p className="mt-2 text-sm text-ink-soft">{copy.finale.emptyBody}</p>
       </section>
     );
   }
@@ -30,10 +31,10 @@ async function Finale({ params }: { params: Promise<{ slug: string }> }) {
   return (
     <section className="mt-8 flex flex-col gap-10">
       <div>
-        <h2 className="font-serif text-4xl leading-none">Finale</h2>
+        <h2 className="font-serif text-4xl leading-none">{copy.finale.title}</h2>
         <p className="mt-2 max-w-md text-sm text-ink-soft">
-          One score per event. You can update it until three days after the board ends.
-          {board.open ? "" : " The window for new scores is closed."}
+          {copy.finale.blurb}
+          {board.open ? "" : ` ${copy.finale.closed}`}
         </p>
       </div>
       {board.events.map((event) => (
@@ -41,7 +42,7 @@ async function Finale({ params }: { params: Promise<{ slug: string }> }) {
           <div className="flex items-baseline justify-between gap-3">
             <h3 className="font-serif text-3xl">{event.metric.name}</h3>
             <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">
-              {event.metric.higherIsBetter ? "Higher wins" : "Lower wins"}
+              {event.metric.higherIsBetter ? copy.finale.higher : copy.finale.lower}
             </p>
           </div>
           {board.open ? (
@@ -54,7 +55,7 @@ async function Finale({ params }: { params: Promise<{ slug: string }> }) {
                 unit={event.metric.unit}
                 input={event.metric.input}
                 initialValue={event.you?.value ?? null}
-                submitLabel="Save score"
+                submitLabel={copy.finale.save}
               />
             </div>
           ) : null}
@@ -62,7 +63,9 @@ async function Finale({ params }: { params: Promise<{ slug: string }> }) {
             <RankList
               input={event.metric.input}
               unit={event.metric.unit}
-              empty="No scores yet."
+              empty={copy.finale.empty}
+              youLabel={copy.you}
+              athlete={copy.athlete}
               rows={event.ranked.map((row) => ({
                 id: row.member.userId,
                 rank: row.rank,

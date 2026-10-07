@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { LoadingLine } from "@/components/loading-line";
 import { getChallengeContext, loadDailyBoard, rankBy } from "@/lib/challenges";
+import { fill } from "@/lib/copy";
 import { displayName, formatValue } from "@/lib/format";
+import { getVoice } from "@/lib/voice";
 
 function one(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -15,7 +18,7 @@ export default function MonthPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   return (
-    <Suspense fallback={<p className="mt-8 text-sm text-ink-soft">Adding up the month…</p>}>
+    <Suspense fallback={<LoadingLine page="month" />}>
       <Month params={params} searchParams={searchParams} />
     </Suspense>
   );
@@ -30,12 +33,13 @@ async function Month({
 }) {
   const { slug } = await params;
   const query = await searchParams;
+  const { copy } = await getVoice();
   const { challenge } = await getChallengeContext(slug);
   const board = await loadDailyBoard(slug, one(query.m));
   const dailies = challenge.metrics.filter((metric) => metric.kind === "DAILY");
 
   if (!board.metric) {
-    return <p className="mt-8 text-sm text-ink-soft">Add a daily tracker from the crew page.</p>;
+    return <p className="mt-8 text-sm text-ink-soft">{copy.month.needTracker}</p>;
   }
 
   const ranked = rankBy(board.rows, board.metric.higherIsBetter, "total");
@@ -44,10 +48,8 @@ async function Month({
     <section className="mt-8">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h2 className="font-serif text-4xl leading-none">Month volume</h2>
-          <p className="mt-2 text-sm text-ink-soft">
-            Every logged day, added up. Blank squares are days with no number.
-          </p>
+          <h2 className="font-serif text-4xl leading-none">{copy.month.title}</h2>
+          <p className="mt-2 text-sm text-ink-soft">{copy.month.blurb}</p>
         </div>
       </div>
 
@@ -72,14 +74,16 @@ async function Month({
 
       <ol className="mt-6 border-t border-ink">
         {ranked.map((row) => {
-          const name = displayName(row.member.name, row.member.nickname);
+          const name = displayName(row.member.name, row.member.nickname, copy.athlete);
           return (
             <li key={row.member.userId} className="border-b border-line py-4">
               <div className="flex items-baseline justify-between gap-3">
                 <p className="min-w-0 truncate">
                   <span className="mr-2 font-serif text-ink-soft">{row.rank ?? "–"}</span>
                   <span className="font-medium">{name}</span>
-                  {row.member.isYou ? <span className="ml-2 text-xs text-ink-soft">You</span> : null}
+                  {row.member.isYou ? (
+                    <span className="ml-2 text-xs text-ink-soft">{copy.you}</span>
+                  ) : null}
                 </p>
                 <p className="font-serif text-4xl leading-none tabular-nums">
                   {formatValue(row.total, board.metric!.input)}
@@ -101,10 +105,17 @@ async function Month({
                       href={`/c/${slug}?d=${day}&m=${board.metric!.slug}`}
                       title={
                         logged
-                          ? `${day}: ${formatValue(value, board.metric!.input)}`
-                          : `${day}: not logged`
+                          ? fill(copy.month.tipLogged, {
+                              day,
+                              value: formatValue(value, board.metric!.input),
+                            })
+                          : fill(copy.month.tipEmpty, { day })
                       }
-                      aria-label={logged ? `${day} logged` : `${day} not logged`}
+                      aria-label={
+                        logged
+                          ? fill(copy.month.logged, { day })
+                          : fill(copy.month.notLogged, { day })
+                      }
                       className={`h-4 ${
                         value === undefined ? "bg-line" : value === 0 ? "bg-ink-soft" : "bg-ink"
                       }`}

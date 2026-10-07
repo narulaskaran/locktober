@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { LoadingLine } from "@/components/loading-line";
 import { LogSheet } from "@/components/log-sheet";
 import { DayLink, RankList } from "@/components/rank-list";
 import { getChallengeContext, loadDailyBoard, rankBy } from "@/lib/challenges";
+import { fill } from "@/lib/copy";
 import { addDays, formatDay } from "@/lib/dates";
-import { displayName, formatValue } from "@/lib/format";
+import { displayName, formatValue, ordinal } from "@/lib/format";
 import { clearDaily } from "@/server/actions";
 import { btnGhost } from "@/lib/styles";
+import { getVoice } from "@/lib/voice";
 
 function one(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -20,7 +23,7 @@ export default function TodayPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   return (
-    <Suspense fallback={<p className="mt-8 text-sm text-ink-soft">Loading the day…</p>}>
+    <Suspense fallback={<LoadingLine page="day" />}>
       <Today params={params} searchParams={searchParams} />
     </Suspense>
   );
@@ -35,6 +38,7 @@ async function Today({
 }) {
   const { slug } = await params;
   const query = await searchParams;
+  const { copy } = await getVoice();
   const { challenge } = await getChallengeContext(slug);
   const board = await loadDailyBoard(slug, one(query.m), one(query.d));
   const dailies = challenge.metrics.filter((metric) => metric.kind === "DAILY");
@@ -42,10 +46,10 @@ async function Today({
   if (!board.metric) {
     return (
       <section className="mt-8">
-        <h2 className="font-serif text-3xl">No daily tracker yet.</h2>
-        <p className="mt-2 text-sm text-ink-soft">Add one from the crew page.</p>
+        <h2 className="font-serif text-3xl">{copy.today.noMetricTitle}</h2>
+        <p className="mt-2 text-sm text-ink-soft">{copy.today.noMetricBody}</p>
         <Link href={`/c/${slug}/crew`} className={`${btnGhost} mt-4`}>
-          Crew
+          {copy.tabs.crew}
         </Link>
       </section>
     );
@@ -81,7 +85,7 @@ async function Today({
       <div className="flex items-center justify-between gap-3">
         <DayLink
           href={`/c/${slug}?d=${prev}&${metricQuery}`}
-          label="Previous day"
+          label={copy.today.previousDay}
           disabled={prev < challenge.startDate}
         >
           ←
@@ -90,15 +94,15 @@ async function Today({
           <p className="font-serif text-3xl leading-none">{formatDay(board.date)}</p>
           {board.date !== board.today ? (
             <Link href={`/c/${slug}?${metricQuery}`} className="text-xs underline">
-              Back to today
+              {copy.today.back}
             </Link>
           ) : (
-            <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">Today</p>
+            <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">{copy.today.label}</p>
           )}
         </div>
         <DayLink
           href={`/c/${slug}?d=${next}&${metricQuery}`}
-          label="Next day"
+          label={copy.today.nextDay}
           disabled={next > challenge.endDate || next > board.today}
         >
           →
@@ -108,7 +112,8 @@ async function Today({
       <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border border-ink bg-paper-2 p-4">
         <div>
           <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">
-            {displayName(you?.member.name ?? "You", you?.member.nickname)} · {board.metric.name}
+            {displayName(you?.member.name ?? copy.you, you?.member.nickname, copy.athlete)} ·{" "}
+            {board.metric.name}
           </p>
           <p className="mt-1 font-serif text-5xl leading-none">
             {you?.value === null || you?.value === undefined ? (
@@ -118,8 +123,10 @@ async function Today({
             )}
           </p>
           <p className="mt-2 text-sm text-ink-soft">
-            {you?.rank ? `You're ${place(you.rank)} on this day.` : "You haven't logged this day."}
-            {you && you.streak >= 2 ? ` ${you.streak}-day streak.` : ""}
+            {you?.rank
+              ? fill(copy.today.youRank, { place: ordinal(you.rank, copy.ordinal) })
+              : copy.today.youEmpty}
+            {you && you.streak >= 2 ? ` ${fill(copy.today.streak, { count: you.streak })}` : ""}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -138,7 +145,7 @@ async function Today({
               <input type="hidden" name="metricId" value={board.metric.id} />
               <input type="hidden" name="date" value={board.date} />
               <button className={btnGhost} type="submit">
-                Clear
+                {copy.today.clear}
               </button>
             </form>
           ) : null}
@@ -146,11 +153,13 @@ async function Today({
       </div>
 
       <div className="mt-8">
-        <h2 className="font-serif text-3xl">The day</h2>
+        <h2 className="font-serif text-3xl">{copy.today.heading}</h2>
         <RankList
           input={board.metric.input}
           unit={board.metric.unit}
-          empty="Nobody is on this board yet."
+          empty={copy.today.empty}
+          youLabel={copy.you}
+          athlete={copy.athlete}
           rows={ranked.map((row) => ({
             id: row.member.userId,
             rank: row.rank,
@@ -161,8 +170,13 @@ async function Today({
             amount: row.value,
             detail:
               row.streak >= 2
-                ? `${row.streak}-day streak · ${formatValue(row.total, board.metric!.input)} this month`
-                : `${formatValue(row.total, board.metric!.input)} this month`,
+                ? fill(copy.today.detailStreak, {
+                    streak: row.streak,
+                    total: formatValue(row.total, board.metric!.input),
+                  })
+                : fill(copy.today.detailMonth, {
+                    total: formatValue(row.total, board.metric!.input),
+                  }),
           }))}
         />
       </div>
@@ -170,17 +184,3 @@ async function Today({
   );
 }
 
-function place(rank: number) {
-  const mod = rank % 100;
-  if (mod >= 11 && mod <= 13) return `${rank}th`;
-  switch (rank % 10) {
-    case 1:
-      return `${rank}st`;
-    case 2:
-      return `${rank}nd`;
-    case 3:
-      return `${rank}rd`;
-    default:
-      return `${rank}th`;
-  }
-}

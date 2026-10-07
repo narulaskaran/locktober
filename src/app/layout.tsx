@@ -1,6 +1,10 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Suspense } from "react";
+import { CopyProvider } from "@/components/copy-provider";
+import { MinionToggle } from "@/components/minion-toggle";
+import { getVoice } from "@/lib/voice";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -20,14 +24,16 @@ const instrument = Instrument_Serif({
   style: ["normal", "italic"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Loctober",
-    template: "%s · Loctober",
-  },
-  description:
-    "A private scoreboard for a month-long lock-in. Daily volume, a running total, and one finale.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { copy } = await getVoice();
+  return {
+    title: {
+      default: copy.meta.title,
+      template: copy.meta.titleTemplate,
+    },
+    description: copy.meta.description,
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#efe8dc",
@@ -57,9 +63,21 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             },
           }}
         >
-          {children}
+          <Suspense fallback={<div className="min-h-screen" />}>
+            <VoicedShell>{children}</VoicedShell>
+          </Suspense>
         </ClerkProvider>
       </body>
     </html>
+  );
+}
+
+async function VoicedShell({ children }: { children: React.ReactNode }) {
+  const { copy, minion } = await getVoice();
+  return (
+    <CopyProvider copy={copy}>
+      {children}
+      <MinionToggle on={minion} label={minion ? copy.mode.exit : copy.mode.enter} />
+    </CopyProvider>
   );
 }

@@ -1,7 +1,9 @@
 "use client";
 
 import { useActionState, useEffect, useId, useState } from "react";
+import { useCopy } from "@/components/copy-provider";
 import { logDaily, logFinale, type ActionState } from "@/server/actions";
+import { fill } from "@/lib/copy";
 import { btnEmber, btnGhost, field } from "@/lib/styles";
 
 type InputKind = "COUNT" | "DECIMAL" | "DURATION";
@@ -33,6 +35,7 @@ export function ScoreForm({
 }) {
   const action = mode === "daily" ? logDaily : logFinale;
   const [state, formAction, pending] = useActionState(action, initial);
+  const copy = useCopy();
   const formId = useId();
   const starting = initialValue ?? 0;
   const [amount, setAmount] = useState(input === "DURATION" ? 0 : starting);
@@ -78,7 +81,7 @@ export function ScoreForm({
         {input === "DURATION" ? (
           <div className="mt-2 flex items-end gap-3">
             <label className="flex-1">
-              <span className="text-xs text-ink-soft">Minutes</span>
+              <span className="text-xs text-ink-soft">{copy.score.minutes}</span>
               <input
                 className={`${field} mt-1 font-serif text-4xl`}
                 inputMode="numeric"
@@ -89,7 +92,7 @@ export function ScoreForm({
               />
             </label>
             <label className="flex-1">
-              <span className="text-xs text-ink-soft">Seconds</span>
+              <span className="text-xs text-ink-soft">{copy.score.seconds}</span>
               <input
                 className={`${field} mt-1 font-serif text-4xl`}
                 inputMode="numeric"
@@ -121,9 +124,9 @@ export function ScoreForm({
         <p className="mt-2 text-sm text-ink-soft">
           {mode === "finale"
             ? input === "DURATION"
-              ? "Lower time wins. Saving replaces your finale score."
-              : "Saving replaces your finale score."
-            : `This replaces the total for this day${unit ? ` (${unit})` : ""}.`}
+              ? copy.score.lowerWins
+              : copy.score.replacesFinale
+            : fill(copy.score.replacesDay, { unit: unit ? ` (${unit})` : "" })}
         </p>
       </div>
 
@@ -135,7 +138,7 @@ export function ScoreForm({
             className={btnGhost}
             onClick={() => bump(chip)}
           >
-            +{input === "DURATION" ? (chip === 60 ? "1:00" : `${chip}s`) : chip}
+            +{input === "DURATION" ? (chip === 60 ? "1:00" : `${chip}${copy.score.secondMark}`) : chip}
           </button>
         ))}
       </div>
@@ -152,7 +155,7 @@ export function ScoreForm({
       ) : null}
 
       <button className={btnEmber} type="submit" disabled={pending}>
-        {pending ? "Saving…" : submitLabel ?? "Save"}
+        {pending ? copy.pending.saving : submitLabel ?? copy.score.save}
       </button>
     </form>
   );

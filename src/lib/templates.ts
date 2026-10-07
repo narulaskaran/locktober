@@ -8,18 +8,17 @@ export type TemplateMetric = {
   higherIsBetter: boolean;
 };
 
+export type TemplateId = "pushups" | "grind" | "presidential";
+
 export type ChallengeTemplate = {
-  id: string;
-  name: string;
-  blurb: string;
-  metrics: TemplateMetric[];
+  id: TemplateId;
+  metrics: readonly TemplateMetric[];
 };
 
-export const templates: ChallengeTemplate[] = [
+// Picker titles and blurbs live in src/lib/copy.ts so Minion mode can translate them.
+export const templates: readonly ChallengeTemplate[] = [
   {
     id: "pushups",
-    name: "Push-up month",
-    blurb: "Log push-ups every day. On the last stretch, one max set.",
     metrics: [
       {
         name: "Push-ups",
@@ -39,8 +38,6 @@ export const templates: ChallengeTemplate[] = [
   },
   {
     id: "grind",
-    name: "The whole grind",
-    blurb: "Push-ups, pull-ups, and miles, then a max set of push-ups.",
     metrics: [
       {
         name: "Push-ups",
@@ -74,8 +71,6 @@ export const templates: ChallengeTemplate[] = [
   },
   {
     id: "presidential",
-    name: "Presidential",
-    blurb: "Daily push-ups, then the test: push-ups, sit-ups, pull-ups, and a mile.",
     metrics: [
       {
         name: "Push-ups",
@@ -117,5 +112,5 @@ export const templates: ChallengeTemplate[] = [
 ];
 
 export function templateById(id: string) {
-  return templates.find((template) => template.id === id) ?? templates[0];
+  return templates.find((template) => template.id === id) ?? templates[0]!;
 }

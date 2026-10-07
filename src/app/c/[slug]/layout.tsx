@@ -3,7 +3,9 @@ import { Suspense } from "react";
 import { ChallengeTabs } from "@/components/tabs";
 import { Wordmark } from "@/components/wordmark";
 import { getChallengeContext } from "@/lib/challenges";
+import { fill } from "@/lib/copy";
 import { formatRange } from "@/lib/dates";
+import { getVoice } from "@/lib/voice";
 
 export default function ChallengeLayout({
   children,
@@ -25,17 +27,18 @@ export default function ChallengeLayout({
 
 async function ChallengeHeader({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const { copy } = await getVoice();
   const { challenge, members } = await getChallengeContext(slug);
   return (
     <header className="mt-8">
       <p className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft">
-        {formatRange(challenge.startDate, challenge.endDate)} · {members.length}{" "}
-        {members.length === 1 ? "person" : "people"}
+        {formatRange(challenge.startDate, challenge.endDate)} ·{" "}
+        {fill(members.length === 1 ? copy.person : copy.people, { count: members.length })}
       </p>
       <div className="mt-2 flex items-end justify-between gap-3">
         <h1 className="font-serif text-5xl leading-[0.95]">{challenge.name}</h1>
         <Link href="/home" className="mb-1 shrink-0 text-sm underline">
-          All boards
+          {copy.header.allBoards}
         </Link>
       </div>
       <ChallengeTabs slug={slug} />

@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useCopy } from "@/components/copy-provider";
 import { ScoreForm } from "@/components/score-form";
+import { fill } from "@/lib/copy";
 import { btnEmber, btnGhost, card } from "@/lib/styles";
 
 export function LogSheet({
@@ -24,6 +26,7 @@ export function LogSheet({
   label?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const copy = useCopy();
 
   useEffect(() => {
     if (!open) return;
@@ -37,13 +40,13 @@ export function LogSheet({
   return (
     <>
       <button className={btnEmber} type="button" onClick={() => setOpen(true)}>
-        {label ?? `Log ${metricName.toLowerCase()}`}
+        {label ?? fill(copy.today.log, { name: metricName.toLowerCase() })}
       </button>
       {open ? (
         <div className="fixed inset-0 z-50">
           <button
             type="button"
-            aria-label="Close log"
+            aria-label={copy.today.closeLog}
             className="absolute inset-0 bg-ink/40"
             onClick={() => setOpen(false)}
           />
@@ -55,10 +58,10 @@ export function LogSheet({
           >
             <div className="mb-4 flex items-start justify-between gap-3">
               <h2 id="log-title" className="font-serif text-3xl leading-none">
-                Log it
+                {copy.today.logTitle}
               </h2>
               <button type="button" className={btnGhost} onClick={() => setOpen(false)}>
-                Close
+                {copy.today.close}
               </button>
             </div>
             <ScoreForm
@@ -71,7 +74,7 @@ export function LogSheet({
               date={date}
               initialValue={initialValue}
               onSaved={() => setOpen(false)}
-              submitLabel="Save this day"
+              submitLabel={copy.today.saveDay}
             />
           </div>
         </div>

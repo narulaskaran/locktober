@@ -1,18 +1,22 @@
 export const timezones = [
-  { value: "America/Los_Angeles", label: "Pacific" },
-  { value: "America/Denver", label: "Mountain" },
-  { value: "America/Phoenix", label: "Arizona" },
-  { value: "America/Chicago", label: "Central" },
-  { value: "America/New_York", label: "Eastern" },
-  { value: "Pacific/Honolulu", label: "Hawaii" },
-  { value: "Europe/London", label: "London" },
-  { value: "Europe/Paris", label: "Central Europe" },
-  { value: "Asia/Kolkata", label: "India" },
-  { value: "Asia/Tokyo", label: "Tokyo" },
-  { value: "Australia/Sydney", label: "Sydney" },
-  { value: "UTC", label: "UTC" },
+  { value: "America/Los_Angeles", voice: "pacific" },
+  { value: "America/Denver", voice: "mountain" },
+  { value: "America/Phoenix", voice: "arizona" },
+  { value: "America/Chicago", voice: "central" },
+  { value: "America/New_York", voice: "eastern" },
+  { value: "Pacific/Honolulu", voice: "hawaii" },
+  { value: "Europe/London", voice: "london" },
+  { value: "Europe/Paris", voice: "europe" },
+  { value: "Asia/Kolkata", voice: "india" },
+  { value: "Asia/Tokyo", voice: "tokyo" },
+  { value: "Australia/Sydney", voice: "sydney" },
+  { value: "UTC", voice: "utc" },
 ] as const;
 
-export function timezoneLabel(value: string) {
-  return timezones.find((zone) => zone.value === value)?.label ?? value;
+export type TimezoneVoice = (typeof timezones)[number]["voice"];
+
+export function timezoneLabel(value: string, labels: Record<TimezoneVoice, string>) {
+  const zone = timezones.find((item) => item.value === value);
+  if (!zone) return value;
+  return labels[zone.voice];
 }

@@ -19,11 +19,15 @@ export function RankList({
   input,
   unit,
   empty,
+  youLabel,
+  athlete,
 }: {
   rows: RankItem[];
   input: MetricInput;
   unit: string;
   empty: string;
+  youLabel: string;
+  athlete: string;
 }) {
   if (rows.length === 0) {
     return <p className="text-sm text-ink-soft">{empty}</p>;
@@ -32,7 +36,7 @@ export function RankList({
   return (
     <ol className="border-t border-ink">
       {rows.map((row) => {
-        const name = displayName(row.name, row.nickname);
+        const name = displayName(row.name, row.nickname, athlete);
         return (
           <li
             key={row.id}
@@ -47,7 +51,9 @@ export function RankList({
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium">
                 {name}
-                {row.isYou ? <span className="ml-2 text-xs font-normal text-ink-soft">You</span> : null}
+                {row.isYou ? (
+                  <span className="ml-2 text-xs font-normal text-ink-soft">{youLabel}</span>
+                ) : null}
               </p>
               {row.detail ? <p className="text-xs text-ink-soft">{row.detail}</p> : null}
             </div>

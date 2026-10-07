@@ -5,11 +5,13 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { MetricInput, MetricKind } from "@/generated/prisma/client";
 import { requireUser } from "@/lib/auth";
+import { fill, type Copy } from "@/lib/copy";
 import { addDays, asDbDate, daysBetween, todayISO } from "@/lib/dates";
 import { prisma } from "@/lib/prisma";
 import { inviteCode, metricSlug, slugify } from "@/lib/slug";
 import { templateById } from "@/lib/templates";
 import { timezones } from "@/lib/timezones";
+import { getVoice } from "@/lib/voice";
 
 export type ActionState = {
   ok: boolean;
@@ -17,8 +19,8 @@ export type ActionState = {
   message?: string;
 };
 
-function firstError(error: z.ZodError) {
-  return error.issues[0]?.message ?? "Check that and try again.";
+function firstError(error: z.ZodError, fallback: string) {
+  return error.issues[0]?.message ?? fallback;
 }
 
 async function membership(slug: string, userId: string) {
@@ -40,19 +42,19 @@ function refresh(slug: string) {
   revalidatePath(`/c/${slug}/crew`);
 }
 
-function normalize(value: number, input: MetricInput) {
+function normalize(value: number, input: MetricInput, copy: Copy) {
   if (!Number.isFinite(value) || value < 0) {
-    return "Use a number that isn't negative.";
+    return copy.err.negative;
   }
   if (input === "COUNT") {
-    if (value > 100_000) return "That number is too big to be a daily log.";
+    if (value > 100_000) return copy.err.tooBig;
     return Math.round(value);
   }
   if (input === "DECIMAL") {
-    if (value > 10_000) return "That number is too big to be a daily log.";
+    if (value > 10_000) return copy.err.tooBig;
     return Math.round(value * 10) / 10;
   }
-  if (value > 86_400) return "Keep the time under 24 hours.";
+  if (value > 86_400) return copy.err.time;
   return Math.round(value);
 }
 
@@ -61,11 +63,12 @@ export async function createChallenge(
   formData: FormData,
 ): Promise<ActionState> {
   const user = await requireUser();
+  const { copy } = await getVoice();
   const parsed = z
     .object({
-      name: z.string().trim().min(2, "Give the board a name.").max(60, "Keep the name under 60 characters."),
-      startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a start date."),
-      endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick an end date."),
+      name: z.string().trim().min(2, copy.err.nameShort).max(60, copy.err.nameLong),
+      startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, copy.err.start),
+      endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, copy.err.end),
       timezone: z.string().min(1),
       template: z.string().min(1),
     })
@@ -77,17 +80,17 @@ export async function createChallenge(
       template: formData.get("template"),
     });
 
-  if (!parsed.success) return { ok: false, error: firstError(parsed.error) };
+  if (!parsed.success) return { ok: false, error: firstError(parsed.error, copy.err.check) };
   const { name, startDate, endDate, timezone, template } = parsed.data;
   if (!timezones.some((zone) => zone.value === timezone)) {
-    return { ok: false, error: "Pick a timezone from the list." };
+    return { ok: false, error: copy.err.zone };
   }
   if (endDate < startDate) {
-    return { ok: false, error: "The end date has to be on or after the start." };
+    return { ok: false, error: copy.err.endBefore };
   }
   const span = daysBetween(startDate, endDate);
   if (span > 45) {
-    return { ok: false, error: "Keep a board to 45 days or fewer." };
+    return { ok: false, error: copy.err.span };
   }
 
   const chosen = templateById(template);
@@ -131,10 +134,7 @@ export async function createChallenge(
   redirect(`/c/${challenge.slug}/crew?welcome=1`);
 }
 
-function uniqueMetricSlug(
-  metrics: { name: string }[],
-  index: number,
-) {
+function uniqueMetricSlug(metrics: readonly { name: string }[], index: number) {
   const base = metricSlug(metrics[index].name);
   const prior = metrics.slice(0, index).map((metric) => metricSlug(metric.name));
   if (!prior.includes(base)) return base;
@@ -146,6 +146,7 @@ export async function logDaily(
   formData: FormData,
 ): Promise<ActionState> {
   const user = await requireUser();
+  const { copy } = await getVoice();
   const parsed = z
     .object({
       slug: z.string().min(1),
@@ -159,26 +160,26 @@ export async function logDaily(
       date: formData.get("date"),
       value: formData.get("value"),
     });
-  if (!parsed.success) return { ok: false, error: firstError(parsed.error) };
+  if (!parsed.success) return { ok: false, error: firstError(parsed.error, copy.err.check) };
 
   const found = await membership(parsed.data.slug, user.id);
-  if (!found) return { ok: false, error: "You are not on this board." };
+  if (!found) return { ok: false, error: copy.err.notOnBoard };
   const metric = found.challenge.metrics.find(
     (item) => item.id === parsed.data.metricId && item.kind === "DAILY",
   );
-  if (!metric) return { ok: false, error: "That log isn't on this board." };
+  if (!metric) return { ok: false, error: copy.err.logMissing };
 
   const start = found.challenge.startDate.toISOString().slice(0, 10);
   const end = found.challenge.endDate.toISOString().slice(0, 10);
   const today = todayISO(found.challenge.timezone);
   if (parsed.data.date < start || parsed.data.date > end) {
-    return { ok: false, error: "That day is outside this board." };
+    return { ok: false, error: copy.err.dayOutside };
   }
   if (parsed.data.date > today) {
-    return { ok: false, error: "You can't log a future day." };
+    return { ok: false, error: copy.err.future };
   }
 
-  const value = normalize(parsed.data.value, metric.input);
+  const value = normalize(parsed.data.value, metric.input, copy);
   if (typeof value === "string") return { ok: false, error: value };
 
   await prisma.entry.upsert({
@@ -200,7 +201,7 @@ export async function logDaily(
   });
 
   refresh(found.challenge.slug);
-  return { ok: true, message: "Saved." };
+  return { ok: true, message: copy.ok.saved };
 }
 
 export async function clearDaily(formData: FormData) {
@@ -221,6 +222,7 @@ export async function logFinale(
   formData: FormData,
 ): Promise<ActionState> {
   const user = await requireUser();
+  const { copy } = await getVoice();
   const parsed = z
     .object({
       slug: z.string().min(1),
@@ -232,23 +234,23 @@ export async function logFinale(
       metricId: formData.get("metricId"),
       value: formData.get("value"),
     });
-  if (!parsed.success) return { ok: false, error: firstError(parsed.error) };
+  if (!parsed.success) return { ok: false, error: firstError(parsed.error, copy.err.check) };
 
   const found = await membership(parsed.data.slug, user.id);
-  if (!found) return { ok: false, error: "You are not on this board." };
+  if (!found) return { ok: false, error: copy.err.notOnBoard };
   const metric = found.challenge.metrics.find(
     (item) => item.id === parsed.data.metricId && item.kind === "FINALE",
   );
-  if (!metric) return { ok: false, error: "That event isn't on this board." };
+  if (!metric) return { ok: false, error: copy.err.eventMissing };
 
   const end = found.challenge.endDate.toISOString().slice(0, 10);
   const start = found.challenge.startDate.toISOString().slice(0, 10);
   const today = todayISO(found.challenge.timezone);
   if (today < start || today > addDays(end, 3)) {
-    return { ok: false, error: "The finale window for this board is closed." };
+    return { ok: false, error: copy.err.finaleClosed };
   }
 
-  const value = normalize(parsed.data.value, metric.input);
+  const value = normalize(parsed.data.value, metric.input, copy);
   if (typeof value === "string") return { ok: false, error: value };
 
   await prisma.finaleEntry.upsert({
@@ -265,7 +267,7 @@ export async function logFinale(
   });
 
   refresh(found.challenge.slug);
-  return { ok: true, message: "Finale score saved." };
+  return { ok: true, message: copy.ok.finaleSaved };
 }
 
 export async function joinChallenge(formData: FormData) {
@@ -293,18 +295,19 @@ export async function renameChallenge(
   formData: FormData,
 ): Promise<ActionState> {
   const user = await requireUser();
+  const { copy } = await getVoice();
   const slug = String(formData.get("slug") ?? "");
   const name = String(formData.get("name") ?? "").trim();
   if (name.length < 2 || name.length > 60) {
-    return { ok: false, error: "Use a name between 2 and 60 characters." };
+    return { ok: false, error: copy.err.renameLength };
   }
   const found = await membership(slug, user.id);
   if (!found || found.member.role !== "OWNER") {
-    return { ok: false, error: "Only the person who made the board can rename it." };
+    return { ok: false, error: copy.err.renameOwner };
   }
   await prisma.challenge.update({ where: { id: found.challenge.id }, data: { name } });
   refresh(slug);
-  return { ok: true, message: "Name updated." };
+  return { ok: true, message: copy.ok.nameUpdated };
 }
 
 export async function setNickname(
@@ -312,19 +315,20 @@ export async function setNickname(
   formData: FormData,
 ): Promise<ActionState> {
   const user = await requireUser();
+  const { copy } = await getVoice();
   const slug = String(formData.get("slug") ?? "");
   const nickname = String(formData.get("nickname") ?? "").trim();
   if (nickname.length > 24) {
-    return { ok: false, error: "Keep the nickname under 24 characters." };
+    return { ok: false, error: copy.err.nickLength };
   }
   const found = await membership(slug, user.id);
-  if (!found) return { ok: false, error: "You are not on this board." };
+  if (!found) return { ok: false, error: copy.err.notOnBoard };
   await prisma.challengeMember.update({
     where: { id: found.member.id },
     data: { nickname: nickname || null },
   });
   refresh(slug);
-  return { ok: true, message: nickname ? "Nickname saved." : "Using your account name." };
+  return { ok: true, message: nickname ? copy.ok.nicknameSaved : copy.ok.accountName };
 }
 
 export async function addMetric(
@@ -332,11 +336,12 @@ export async function addMetric(
   formData: FormData,
 ): Promise<ActionState> {
   const user = await requireUser();
+  const { copy } = await getVoice();
   const parsed = z
     .object({
       slug: z.string().min(1),
-      name: z.string().trim().min(2, "Name the thing you're tracking.").max(40),
-      unit: z.string().trim().max(12).default(""),
+      name: z.string().trim().min(2, copy.err.trackerName).max(40, copy.err.trackerNameLong),
+      unit: z.string().trim().max(12, copy.err.unitLong).default(""),
       kind: z.enum(["DAILY", "FINALE"]),
       input: z.enum(["COUNT", "DECIMAL", "DURATION"]),
     })
@@ -347,11 +352,11 @@ export async function addMetric(
       kind: formData.get("kind"),
       input: formData.get("input"),
     });
-  if (!parsed.success) return { ok: false, error: firstError(parsed.error) };
+  if (!parsed.success) return { ok: false, error: firstError(parsed.error, copy.err.check) };
 
   const found = await membership(parsed.data.slug, user.id);
   if (!found || found.member.role !== "OWNER") {
-    return { ok: false, error: "Only the owner can add a tracker." };
+    return { ok: false, error: copy.err.ownerOnly };
   }
 
   const base = metricSlug(parsed.data.name);
@@ -378,7 +383,7 @@ export async function addMetric(
     },
   });
   refresh(parsed.data.slug);
-  return { ok: true, message: `${parsed.data.name} is on the board.` };
+  return { ok: true, message: fill(copy.ok.trackerAdded, { name: parsed.data.name }) };
 }
 
 export async function removeMetric(formData: FormData) {
