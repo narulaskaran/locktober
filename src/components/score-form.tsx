@@ -1,7 +1,9 @@
 "use client";
 
 import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { useCopy } from "@/components/copy-provider";
 import { logDaily, logFinale, type ActionState } from "@/server/actions";
+import { fill } from "@/lib/copy";
 import { formatValue } from "@/lib/format";
 import { btnEmber, btnGhost, numberField } from "@/lib/styles";
 
@@ -54,6 +56,7 @@ export function ScoreForm({
 }) {
   const action = mode === "daily" ? logDaily : logFinale;
   const [state, formAction, pending] = useActionState(action, initial);
+  const copy = useCopy();
   const formId = useId();
   const amountField = useRef<HTMLInputElement>(null);
   const current = initialValue ?? 0;
@@ -105,15 +108,6 @@ export function ScoreForm({
   const chips =
     input === "DECIMAL" ? [0.5, 1, 2] : input === "DURATION" ? [15, 30, 60] : [5, 10, 25];
 
-  const hint =
-    mode === "finale"
-      ? input === "DURATION"
-        ? "Lower time wins. Saving replaces your score."
-        : "Saving replaces your score."
-      : adding
-        ? null
-        : "Saving replaces the total for this day.";
-
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <input type="hidden" name="slug" value={slug} />
@@ -122,7 +116,7 @@ export function ScoreForm({
       {date ? <input type="hidden" name="date" value={date} /> : null}
 
       {canAdd ? (
-        <div className="grid grid-cols-2 border border-ink" role="group" aria-label="How to log">
+        <div className="grid grid-cols-2 border border-ink" role="group" aria-label={copy.score.how}>
           {(["add", "set"] as const).map((option) => (
             <button
               key={option}
@@ -133,7 +127,7 @@ export function ScoreForm({
                 how === option ? "bg-ink text-paper" : "bg-paper-2 text-ink hover:bg-white"
               }`}
             >
-              {option === "add" ? "Add to today" : "Set total"}
+              {option === "add" ? copy.score.addToday : copy.score.setTotal}
             </button>
           ))}
         </div>
@@ -143,7 +137,7 @@ export function ScoreForm({
         {input === "DURATION" ? (
           <div className="flex items-end gap-3">
             <label className="flex-1">
-              <span className="text-xs text-ink-soft">Minutes</span>
+              <span className="text-xs text-ink-soft">{copy.score.minutes}</span>
               <input
                 className={`${numberField} mt-1`}
                 inputMode="numeric"
@@ -156,7 +150,7 @@ export function ScoreForm({
               />
             </label>
             <label className="flex-1">
-              <span className="text-xs text-ink-soft">Seconds</span>
+              <span className="text-xs text-ink-soft">{copy.score.seconds}</span>
               <input
                 className={`${numberField} mt-1`}
                 inputMode="numeric"
@@ -174,7 +168,7 @@ export function ScoreForm({
         ) : (
           <label htmlFor={formId}>
             <span className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft">
-              {adding ? `Add ${metricName.toLowerCase()}` : metricName}
+              {adding ? fill(copy.score.addLabel, { name: metricName.toLowerCase() }) : metricName}
               {unit ? ` · ${unit}` : ""}
             </span>
             <input
@@ -193,19 +187,27 @@ export function ScoreForm({
         )}
         {adding ? (
           <p className="mt-2 text-sm text-ink-soft" aria-live="polite">
-            Today so far {formatValue(current, input)} →{" "}
-            <span className="font-medium text-ink">{formatValue(value, input)}</span>
+            {fill(copy.score.soFar, {
+              current: formatValue(current, input),
+              next: formatValue(value, input),
+            })}
             {unit ? ` ${unit}` : ""}
           </p>
-        ) : hint ? (
-          <p className="mt-2 text-sm text-ink-soft">{hint}</p>
-        ) : null}
+        ) : (
+          <p className="mt-2 text-sm text-ink-soft">
+            {mode === "finale"
+              ? input === "DURATION"
+                ? copy.score.lowerWins
+                : copy.score.replacesFinale
+              : copy.score.replacesDay}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2">
         {chips.map((chip) => (
           <button key={chip} type="button" className={btnGhost} onClick={() => bump(chip)}>
-            +{input === "DURATION" ? (chip === 60 ? "1:00" : `${chip}s`) : chip}
+            +{input === "DURATION" ? (chip === 60 ? "1:00" : `${chip}${copy.score.secondMark}`) : chip}
           </button>
         ))}
       </div>
@@ -222,7 +224,7 @@ export function ScoreForm({
       ) : null}
 
       <button className={btnEmber} type="submit" disabled={pending || !hasInput}>
-        {pending ? "Saving…" : (submitLabel ?? "Save")}
+        {pending ? copy.pending.saving : (submitLabel ?? copy.score.save)}
       </button>
     </form>
   );

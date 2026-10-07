@@ -4,14 +4,17 @@ import { Suspense } from "react";
 import { Pumpkin } from "@/components/pumpkin";
 import { Wordmark } from "@/components/wordmark";
 import { loadHome } from "@/lib/challenges";
-import { formatRange } from "@/lib/dates";
+import { fill, type Copy } from "@/lib/copy";
+import { formatRange, progressLabel } from "@/lib/dates";
 import { formatValue } from "@/lib/format";
 import { btnEmber, btnGhost, card } from "@/lib/styles";
+import { getVoice } from "@/lib/voice";
 
-const notices: Record<string, string> = {
-  "not-on-board": "That board is private. Ask for an invite link.",
-  "bad-invite": "That invite link doesn't match a board.",
-};
+function noticeFor(copy: Copy, key: string) {
+  if (key === "not-on-board") return copy.home.privateBoard;
+  if (key === "bad-invite") return copy.home.badInvite;
+  return undefined;
+}
 
 export default function HomePage({
   searchParams,
@@ -32,7 +35,8 @@ async function Home({
 }) {
   const params = await searchParams;
   const noticeKey = typeof params.notice === "string" ? params.notice : "";
-  const notice = notices[noticeKey];
+  const { copy } = await getVoice();
+  const notice = noticeFor(copy, noticeKey);
   const { cards } = await loadHome();
 
   return (
@@ -43,11 +47,11 @@ async function Home({
       </header>
       <div className="mt-8 flex items-end justify-between gap-4">
         <div>
-          <h1 className="font-serif text-5xl leading-none">Your boards</h1>
-          <p className="mt-2 text-sm text-ink-soft">The challenges you own or were invited to.</p>
+          <h1 className="font-serif text-5xl leading-none">{copy.home.title}</h1>
+          <p className="mt-2 text-sm text-ink-soft">{copy.home.subtitle}</p>
         </div>
         <Link href="/challenges/new" className={btnEmber}>
-          New
+          {copy.home.new}
         </Link>
       </div>
       {notice ? (
@@ -58,12 +62,10 @@ async function Home({
       {cards.length === 0 ? (
         <div className={`${card} mt-8 p-5`}>
           <Pumpkin size={56} />
-          <h2 className="mt-4 font-serif text-3xl">Nothing here yet.</h2>
-          <p className="mt-2 text-sm text-ink-soft">
-            Start a board and send the link, or open an invite from a friend.
-          </p>
+          <h2 className="mt-4 font-serif text-3xl">{copy.home.emptyTitle}</h2>
+          <p className="mt-2 text-sm text-ink-soft">{copy.home.emptyBody}</p>
           <Link href="/challenges/new" className={`${btnGhost} mt-5`}>
-            Start a board
+            {copy.home.start}
           </Link>
         </div>
       ) : (
@@ -74,16 +76,18 @@ async function Home({
                 <div className="flex items-baseline justify-between gap-3">
                   <h2 className="font-serif text-3xl leading-none">{cardItem.name}</h2>
                   <span className="text-xs uppercase tracking-[0.14em] text-ink-soft">
-                    {cardItem.members} {cardItem.members === 1 ? "person" : "people"}
+                    {fill(cardItem.members === 1 ? copy.person : copy.people, {
+                      count: cardItem.members,
+                    })}
                   </span>
                 </div>
                 <p className="mt-2 text-sm text-ink-soft">
-                  {formatRange(cardItem.start, cardItem.end)} · {cardItem.progressText}
+                  {formatRange(cardItem.start, cardItem.end)} · {progressLabel(cardItem.progress, copy.header)}
                 </p>
                 {cardItem.metricName ? (
                   <div className="mt-4 flex items-end justify-between gap-4 border-t border-line pt-3">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">Today</p>
+                      <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">{copy.home.today}</p>
                       <p className="font-serif text-4xl leading-none">
                         {cardItem.todayValue === null ? (
                           <span className="text-ink-soft">—</span>
@@ -94,7 +98,7 @@ async function Home({
                     </div>
                     <div className="text-right">
                       <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">
-                        {cardItem.metricName} this month
+                        {fill(copy.home.metricMonth, { name: cardItem.metricName })}
                       </p>
                       <p className="font-serif text-2xl leading-none">
                         {formatValue(cardItem.monthTotal, cardItem.metricInput)}
@@ -102,13 +106,13 @@ async function Home({
                     </div>
                   </div>
                 ) : (
-                  <p className="mt-4 text-sm text-ink-soft">No daily tracker yet.</p>
+                  <p className="mt-4 text-sm text-ink-soft">{copy.home.noDaily}</p>
                 )}
                 {cardItem.metricName &&
                 cardItem.progress.state === "live" &&
                 !cardItem.loggedToday ? (
                   <p className="-mx-4 -mb-4 mt-4 flex items-center justify-between border-t border-ember bg-ember px-4 py-3 text-sm font-medium text-paper">
-                    <span>Log today&apos;s {cardItem.metricName.toLowerCase()}</span>
+                    <span>{fill(copy.home.logToday, { name: cardItem.metricName.toLowerCase() })}</span>
                     <span aria-hidden="true">→</span>
                   </p>
                 ) : null}

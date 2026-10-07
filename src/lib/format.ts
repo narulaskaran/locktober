@@ -30,11 +30,29 @@ export function formatValueWithUnit(
   return `${formatted} ${unit}`;
 }
 
-export function displayName(name: string, nickname?: string | null) {
+export function displayName(name: string, nickname?: string | null, fallback = "Athlete") {
   const trimmed = nickname?.trim();
   if (trimmed) return trimmed;
   const first = name.trim().split(/\s+/)[0];
-  return first || "Athlete";
+  return first || fallback;
+}
+
+export function ordinal(
+  rank: number,
+  suffix: { st: string; nd: string; rd: string; th: string },
+) {
+  const mod = rank % 100;
+  if (mod >= 11 && mod <= 13) return `${rank}${suffix.th}`;
+  switch (rank % 10) {
+    case 1:
+      return `${rank}${suffix.st}`;
+    case 2:
+      return `${rank}${suffix.nd}`;
+    case 3:
+      return `${rank}${suffix.rd}`;
+    default:
+      return `${rank}${suffix.th}`;
+  }
 }
 
 export function initials(name: string) {

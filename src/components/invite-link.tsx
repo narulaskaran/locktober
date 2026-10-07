@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, useState, useSyncExternalStore } from "react";
+import { useCopy } from "@/components/copy-provider";
+import { fill } from "@/lib/copy";
 import { btnEmber, btnInk } from "@/lib/styles";
 
 const noop = () => () => {};
@@ -19,13 +21,13 @@ export function InviteLink({ code, boardName }: { code: string; boardName: strin
   const url = origin ? `${origin}/join/${code}` : "";
   const field = useRef<HTMLInputElement>(null);
   const [copied, setCopied] = useState(false);
+  const text = useCopy();
 
-  async function copy() {
+  async function copyLink() {
     if (!url) return;
     try {
       await navigator.clipboard.writeText(url);
     } catch {
-      // Clipboard API is blocked on some in-app browsers and plain http.
       field.current?.select();
       document.execCommand("copy");
     }
@@ -36,8 +38,8 @@ export function InviteLink({ code, boardName }: { code: string; boardName: strin
   async function share() {
     try {
       await navigator.share({
-        title: `${boardName} on Loctober`,
-        text: `Join "${boardName}" on Loctober. Sign in and you're on the board.`,
+        title: fill(text.invite.shareTitle, { name: boardName }),
+        text: fill(text.invite.shareText, { name: boardName }),
         url,
       });
     } catch {
@@ -50,25 +52,26 @@ export function InviteLink({ code, boardName }: { code: string; boardName: strin
       <input
         ref={field}
         readOnly
-        value={url || "Preparing link…"}
-        aria-label="Invite link"
+        suppressHydrationWarning
+        value={url || text.invite.preparing}
+        aria-label={text.invite.label}
         className="min-h-11 w-full border border-ink bg-paper px-3 text-sm"
         onFocus={(event) => event.currentTarget.select()}
       />
       <div className="flex flex-col gap-3 sm:flex-row">
         {canShare ? (
           <button type="button" className={`${btnEmber} flex-1`} onClick={share} disabled={!url}>
-            Share invite
+            {text.invite.share}
           </button>
         ) : null}
         <button
           type="button"
           className={`${canShare ? "bg-paper-2 text-ink hover:bg-white" : btnInk} inline-flex min-h-11 flex-1 items-center justify-center border border-ink px-4 text-sm font-medium`}
-          onClick={copy}
+          onClick={copyLink}
           disabled={!url}
           aria-live="polite"
         >
-          {copied ? "Copied" : "Copy link"}
+          {copied ? text.invite.copied : text.invite.copy}
         </button>
       </div>
     </div>

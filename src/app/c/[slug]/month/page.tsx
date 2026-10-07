@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { LoadingLine } from "@/components/loading-line";
 import { MonthChart } from "@/components/month-chart";
 import { Pumpkin } from "@/components/pumpkin";
 import { getChallengeContext, loadDailyBoard, rankBy } from "@/lib/challenges";
+import { fill } from "@/lib/copy";
 import { formatDay } from "@/lib/dates";
 import { displayName, formatValue } from "@/lib/format";
 import { memberColor } from "@/lib/palette";
 import { chipOff, chipOn } from "@/lib/styles";
+import { getVoice } from "@/lib/voice";
 
 function one(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -20,7 +23,7 @@ export default function MonthPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   return (
-    <Suspense fallback={<p className="mt-8 text-sm text-ink-soft">Adding up the month…</p>}>
+    <Suspense fallback={<LoadingLine page="month" />}>
       <Month params={params} searchParams={searchParams} />
     </Suspense>
   );
@@ -35,6 +38,7 @@ async function Month({
 }) {
   const { slug } = await params;
   const query = await searchParams;
+  const { copy } = await getVoice();
   const { challenge } = await getChallengeContext(slug);
   const board = await loadDailyBoard(slug, one(query.m));
   const dailies = challenge.metrics.filter((metric) => metric.kind === "DAILY");
@@ -43,7 +47,7 @@ async function Month({
     return (
       <section className="mt-8">
         <Pumpkin size={48} />
-        <p className="mt-4 text-sm text-ink-soft">Add a daily tracker from the crew page.</p>
+        <p className="mt-4 text-sm text-ink-soft">{copy.month.needTracker}</p>
       </section>
     );
   }
@@ -61,11 +65,8 @@ async function Month({
 
   return (
     <section className="mt-8">
-      <h2 className="font-serif text-4xl leading-none">Month volume</h2>
-      <p className="mt-2 text-sm text-ink-soft">
-        Every logged day, added up. Ember is a day above zero, a muted square is a zero, and a blank
-        one has no number. Tap a square to open that day.
-      </p>
+      <h2 className="font-serif text-4xl leading-none">{copy.month.title}</h2>
+      <p className="mt-2 text-sm text-ink-soft">{copy.month.blurb}</p>
 
       {dailies.length > 1 ? (
         <div className="mt-4 flex gap-2 overflow-x-auto">
@@ -88,15 +89,15 @@ async function Month({
       {summable && crewTotal > 0 ? (
         <>
           <dl className="mt-6 grid grid-cols-3 border border-ink bg-paper-2">
-            <Stat label="Crew total" value={formatValue(crewTotal, metric.input)} unit={unit} />
+            <Stat label={copy.month.crewTotal} value={formatValue(crewTotal, metric.input)} unit={unit} />
             <Stat
-              label="Your avg"
+              label={copy.month.yourAvg}
               value={yourDays.length ? formatValue((you?.total ?? 0) / yourDays.length, metric.input) : "—"}
               unit={yourDays.length ? unit : ""}
               divided
             />
             <Stat
-              label="Best day"
+              label={copy.month.bestDay}
               value={yourDays.length ? formatValue(Math.max(...yourDays), metric.input) : "—"}
               unit={unit}
               divided
@@ -107,9 +108,11 @@ async function Month({
             today={board.today}
             input={metric.input}
             unit={metric.unit}
+            leadPhrase={copy.month.chart}
+            todayLabel={copy.month.today}
             series={board.rows.map((row) => ({
               id: row.member.userId,
-              name: displayName(row.member.name, row.member.nickname),
+              name: displayName(row.member.name, row.member.nickname, copy.athlete),
               color: colors.get(row.member.userId)!,
               isYou: row.member.isYou,
               byDay: row.byDay,
@@ -120,7 +123,7 @@ async function Month({
 
       <ol className="mt-8 border-t border-ink">
         {ranked.map((row) => {
-          const name = displayName(row.member.name, row.member.nickname);
+          const name = displayName(row.member.name, row.member.nickname, copy.athlete);
           const harvested = Object.values(row.byDay).some((value) => value > 0);
           return (
             <li key={row.member.userId} className="border-b border-line py-4">
@@ -138,7 +141,7 @@ async function Month({
                     />
                   ) : null}
                   <span className="truncate font-medium">{name}</span>
-                  {row.member.isYou ? <span className="text-xs text-ink-soft">You</span> : null}
+                  {row.member.isYou ? <span className="text-xs text-ink-soft">{copy.you}</span> : null}
                 </p>
                 <p className="font-serif text-4xl leading-none tabular-nums">
                   {formatValue(row.total, metric.input)}
@@ -155,9 +158,14 @@ async function Month({
                   const value = row.byDay[day];
                   const logged = value !== undefined;
                   const future = day > board.today;
-                  const label = `${formatDay(day)}: ${
-                    logged ? formatValue(value, metric.input) : future ? "not yet" : "not logged"
-                  }`;
+                  const label = logged
+                    ? fill(copy.month.tipLogged, {
+                        day: formatDay(day),
+                        value: formatValue(value, metric.input),
+                      })
+                    : future
+                      ? fill(copy.month.tipFuture, { day: formatDay(day) })
+                      : fill(copy.month.tipEmpty, { day: formatDay(day) });
                   return (
                     <Link
                       key={day}

@@ -1,3 +1,4 @@
+import { fill } from "@/lib/copy";
 import { formatDay } from "@/lib/dates";
 import { formatValue } from "@/lib/format";
 import type { MetricInput } from "@/generated/prisma/client";
@@ -27,12 +28,16 @@ export function MonthChart({
   series,
   input,
   unit,
+  leadPhrase,
+  todayLabel,
 }: {
   days: string[];
   today: string;
   series: ChartSeries[];
   input: MetricInput;
   unit: string;
+  leadPhrase: string;
+  todayLabel: string;
 }) {
   const count = days.length;
   const through = days.filter((day) => day <= today).length;
@@ -63,10 +68,10 @@ export function MonthChart({
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
           role="img"
-          aria-label={`Running total by day. ${leader.name} leads with ${formatValue(
-            leader.totals[through - 1],
-            input,
-          )}${unitLabel}.`}
+          aria-label={fill(leadPhrase, {
+            name: leader.name,
+            total: `${formatValue(leader.totals[through - 1], input)}${unitLabel}`,
+          })}
           className="absolute inset-0 h-full w-full overflow-visible"
         >
           <line x1="0" x2="100" y1="50" y2="50" stroke="#d7cec1" strokeWidth="1" vectorEffect="non-scaling-stroke" />
@@ -118,7 +123,7 @@ export function MonthChart({
             className="absolute bottom-1 text-[11px] uppercase tracking-[0.12em] text-ink-soft"
             style={todayX > 80 ? { right: `${100 - todayX}%`, paddingRight: 6 } : { left: `${todayX}%`, paddingLeft: 6 }}
           >
-            Today
+            {todayLabel}
           </span>
         ) : null}
       </div>

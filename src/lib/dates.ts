@@ -74,10 +74,28 @@ export function boardProgress(start: string, end: string, today: string): BoardP
   return { state: "live", day: daysBetween(start, today), total };
 }
 
-export function progressLabel(progress: BoardProgress) {
+export type ProgressPhrases = {
+  startsTomorrow: string;
+  startsIn: string;
+  finished: string;
+  dayOf: string;
+};
+
+const englishProgress: ProgressPhrases = {
+  startsTomorrow: "Starts tomorrow",
+  startsIn: "Starts in {count} days",
+  finished: "Finished",
+  dayOf: "Day {day} of {total}",
+};
+
+export function progressLabel(progress: BoardProgress, phrases: ProgressPhrases = englishProgress) {
   if (progress.state === "upcoming") {
-    return progress.startsIn <= 1 ? "Starts tomorrow" : `Starts in ${progress.startsIn} days`;
+    return progress.startsIn <= 1
+      ? phrases.startsTomorrow
+      : phrases.startsIn.replaceAll("{count}", String(progress.startsIn));
   }
-  if (progress.state === "done") return "Finished";
-  return `Day ${progress.day} of ${progress.total}`;
+  if (progress.state === "done") return phrases.finished;
+  return phrases.dayOf
+    .replaceAll("{day}", String(progress.day))
+    .replaceAll("{total}", String(progress.total));
 }

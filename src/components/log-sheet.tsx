@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useCopy } from "@/components/copy-provider";
 import { ScoreForm } from "@/components/score-form";
+import { fill } from "@/lib/copy";
 import { btnEmber, btnGhost, card } from "@/lib/styles";
 
 export function LogSheet({
@@ -34,6 +36,7 @@ export function LogSheet({
   tone?: "ember" | "ghost";
 }) {
   const [open, setOpen] = useState(false);
+  const copy = useCopy();
   const trigger = useRef<HTMLButtonElement>(null);
   const close = useCallback(() => {
     setOpen(false);
@@ -54,6 +57,8 @@ export function LogSheet({
     };
   }, [open, close]);
 
+  const fallback = fill(copy.today.log, { name: metricName.toLowerCase() });
+
   return (
     <>
       <button
@@ -62,13 +67,13 @@ export function LogSheet({
         type="button"
         onClick={() => setOpen(true)}
       >
-        {triggerLabel ?? `Log ${metricName.toLowerCase()}`}
+        {triggerLabel ?? fallback}
       </button>
       {open ? (
         <div className="fixed inset-0 z-50">
           <button
             type="button"
-            aria-label="Close"
+            aria-label={copy.today.closeLog}
             tabIndex={-1}
             className="absolute inset-0 bg-ink/40"
             onClick={close}
@@ -87,11 +92,11 @@ export function LogSheet({
                   </p>
                 ) : null}
                 <h2 id="log-title" className="mt-1 font-serif text-3xl leading-none">
-                  {title ?? `Log ${metricName.toLowerCase()}`}
+                  {title ?? fallback}
                 </h2>
               </div>
               <button type="button" className={btnGhost} onClick={close}>
-                Close
+                {copy.today.close}
               </button>
             </div>
             <ScoreForm
@@ -104,7 +109,7 @@ export function LogSheet({
               date={date}
               initialValue={initialValue}
               onSaved={close}
-              submitLabel={submitLabel ?? (mode === "daily" ? "Save" : "Save score")}
+              submitLabel={submitLabel ?? (mode === "daily" ? copy.today.saveDay : copy.finale.save)}
               autoFocus
             />
           </div>
