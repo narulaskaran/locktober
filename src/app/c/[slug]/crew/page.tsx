@@ -47,7 +47,7 @@ async function Crew({
           Anyone with this link can sign in and join. Without it, they can&apos;t see the board.
         </p>
         <div className="mt-4">
-          <InviteLink code={challenge.inviteCode} />
+          <InviteLink code={challenge.inviteCode} boardName={challenge.name} />
         </div>
         {isOwner ? (
           <form action={rotateInvite} className="mt-4">

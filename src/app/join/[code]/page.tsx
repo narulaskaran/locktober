@@ -9,6 +9,11 @@ import { prisma } from "@/lib/prisma";
 import { btnEmber, btnGhost, card } from "@/lib/styles";
 import { joinChallenge } from "@/server/actions";
 
+export const metadata = {
+  title: "You're invited",
+  robots: { index: false, follow: false },
+};
+
 export default function JoinPage({ params }: { params: Promise<{ code: string }> }) {
   return (
     <Suspense fallback={<p className="px-5 py-8 text-sm text-ink-soft">Opening the invite…</p>}>

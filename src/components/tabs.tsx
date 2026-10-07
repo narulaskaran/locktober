@@ -15,7 +15,7 @@ export function ChallengeTabs({ slug }: { slug: string }) {
   const base = `/c/${slug}`;
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-ink bg-paper-2 pb-[env(safe-area-inset-bottom)] md:static md:mt-6 md:border-0 md:bg-transparent md:pb-0">
+    <nav aria-label="Board sections" className="fixed inset-x-0 bottom-0 z-30 border-t border-ink bg-paper-2 pb-[env(safe-area-inset-bottom)] md:static md:mt-6 md:border-0 md:bg-transparent md:pb-0">
       <ul className="mx-auto grid max-w-2xl grid-cols-4 md:flex md:gap-2">
         {items.map((item) => {
           const href = `${base}${item.href}`;

@@ -59,3 +59,25 @@ export function defaultWindow(timeZone = "America/New_York") {
 export function daysBetween(start: string, end: string) {
   return eachDay(start, end).length;
 }
+
+export type BoardProgress =
+  | { state: "upcoming"; day: 0; total: number; startsIn: number }
+  | { state: "live"; day: number; total: number }
+  | { state: "done"; day: number; total: number };
+
+export function boardProgress(start: string, end: string, today: string): BoardProgress {
+  const total = daysBetween(start, end);
+  if (today < start) {
+    return { state: "upcoming", day: 0, total, startsIn: daysBetween(today, start) - 1 };
+  }
+  if (today > end) return { state: "done", day: total, total };
+  return { state: "live", day: daysBetween(start, today), total };
+}
+
+export function progressLabel(progress: BoardProgress) {
+  if (progress.state === "upcoming") {
+    return progress.startsIn <= 1 ? "Starts tomorrow" : `Starts in ${progress.startsIn} days`;
+  }
+  if (progress.state === "done") return "Finished";
+  return `Day ${progress.day} of ${progress.total}`;
+}

@@ -27,6 +27,7 @@ export const metadata: Metadata = {
   },
   description:
     "A private scoreboard for a month-long lock-in. Daily volume, a running total, and one finale.",
+  appleWebApp: { capable: true, title: "Loctober", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {

@@ -34,7 +34,7 @@ export default function NewChallengePage() {
 
 async function NewChallengeForm() {
   await connection();
-  await requireUser();
+  await requireUser("/challenges/new");
   const { start, end } = defaultWindow();
   return <CreateForm start={start} end={end} />;
 }

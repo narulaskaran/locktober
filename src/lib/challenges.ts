@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import type { MetricInput } from "@/generated/prisma/client";
 import { requireUser } from "@/lib/auth";
-import { addDays, eachDay, fromDbDate, todayISO } from "@/lib/dates";
+import { addDays, boardProgress, eachDay, fromDbDate, progressLabel, todayISO } from "@/lib/dates";
 import { prisma } from "@/lib/prisma";
 
 export type BoardMember = {
@@ -45,7 +45,7 @@ function toMember(
 }
 
 export const getChallengeContext = cache(async (slug: string) => {
-  const user = await requireUser();
+  const user = await requireUser(`/c/${slug}`);
   const challenge = await prisma.challenge.findUnique({
     where: { slug },
     include: {
@@ -225,7 +225,7 @@ export function pickDate(requested: string | undefined, start: string, end: stri
 }
 
 export async function loadHome() {
-  const user = await requireUser();
+  const user = await requireUser("/home");
   const memberships = await prisma.challengeMember.findMany({
     where: { userId: user.id },
     include: {
@@ -280,6 +280,8 @@ export async function loadHome() {
       todayValue: todayEntry?.value ?? null,
       monthTotal,
       loggedToday: Boolean(todayEntry),
+      progress: boardProgress(start, end, today),
+      progressText: progressLabel(boardProgress(start, end, today)),
     };
   });
 

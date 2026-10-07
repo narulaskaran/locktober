@@ -78,7 +78,7 @@ async function Home({
                   </span>
                 </div>
                 <p className="mt-2 text-sm text-ink-soft">
-                  {formatRange(cardItem.start, cardItem.end)}
+                  {formatRange(cardItem.start, cardItem.end)} · {cardItem.progressText}
                 </p>
                 {cardItem.metricName ? (
                   <div className="mt-4 flex items-end justify-between gap-4 border-t border-line pt-3">
@@ -104,6 +104,14 @@ async function Home({
                 ) : (
                   <p className="mt-4 text-sm text-ink-soft">No daily tracker yet.</p>
                 )}
+                {cardItem.metricName &&
+                cardItem.progress.state === "live" &&
+                !cardItem.loggedToday ? (
+                  <p className="-mx-4 -mb-4 mt-4 flex items-center justify-between border-t border-ember bg-ember px-4 py-3 text-sm font-medium text-paper">
+                    <span>Log today&apos;s {cardItem.metricName.toLowerCase()}</span>
+                    <span aria-hidden="true">→</span>
+                  </p>
+                ) : null}
               </Link>
             </li>
           ))}

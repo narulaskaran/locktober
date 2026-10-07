@@ -23,6 +23,9 @@ Private multi-tenant fitness boards. One repo, one Next.js app. Friends join a c
 - `src/server/actions.ts` — mutations. Every one checks membership
 - `src/lib/challenges.ts` — reads. `getChallengeContext` redirects non-members home
 - `src/lib/templates.ts` — starting trackers. Add a template here
+- `src/components/score-form.tsx`, `log-sheet.tsx` — the logging UI. Daily logs offer "Add to today" or "Set total"; finale scores always replace
+- `src/components/month-chart.tsx` — server-rendered SVG running totals. Colors come from `src/lib/palette.ts`
+- `src/app/manifest.ts`, `public/icon-*.png`, `src/app/apple-icon.png` — home-screen install
 - `prisma/schema.prisma` — User, Challenge, ChallengeMember, Metric, Entry, FinaleEntry
 
 Daily logs live on `Entry` (one value per person, metric, and calendar date). Finale scores live on `FinaleEntry` (one value per person and metric). `Metric.kind` is `DAILY` or `FINALE`. `Metric.input` is `COUNT`, `DECIMAL`, or `DURATION` (seconds). Timed metrics rank lower-is-better.
@@ -59,3 +62,5 @@ pnpm build
 ## UI
 
 The visual system is paper, ink, and one ember accent. It is defined in `src/app/globals.css` and `src/lib/styles.ts`. Keep new screens on those tokens. Touch targets stay at least 44px. The challenge tabs are fixed to the bottom on small screens.
+
+Global element resets go inside `@layer base` in `globals.css`. An unlayered rule beats every Tailwind utility, which is how `font: inherit` once silently overrode `text-sm` and `text-5xl` on all inputs and buttons. Number entry is a text input with `inputMode`, not `type="number"`, so the field can be empty and never shows "075".

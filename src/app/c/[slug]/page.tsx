@@ -7,7 +7,7 @@ import { getChallengeContext, loadDailyBoard, rankBy } from "@/lib/challenges";
 import { addDays, formatDay } from "@/lib/dates";
 import { displayName, formatValue } from "@/lib/format";
 import { clearDaily } from "@/server/actions";
-import { btnGhost } from "@/lib/styles";
+import { btnGhost, chipOff, chipOn } from "@/lib/styles";
 
 function one(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -55,6 +55,8 @@ async function Today({
 
   const ranked = rankBy(board.rows, board.metric.higherIsBetter, "value");
   const you = ranked.find((row) => row.member.isYou);
+  const crewTotal =
+    board.metric.input === "DURATION" ? 0 : ranked.reduce((sum, row) => sum + (row.value ?? 0), 0);
   const prev = addDays(board.date, -1);
   const next = addDays(board.date, 1);
   const metricQuery = `m=${board.metric.slug}`;
@@ -69,9 +71,8 @@ async function Today({
               <Link
                 key={metric.id}
                 href={`/c/${slug}?d=${board.date}&m=${metric.slug}`}
-                className={`shrink-0 border border-ink px-3 py-2 text-sm ${
-                  active ? "bg-ink text-paper" : "bg-paper-2"
-                }`}
+                aria-current={active ? "true" : undefined}
+                className={`shrink-0 ${active ? chipOn : chipOff}`}
               >
                 {metric.name}
               </Link>
@@ -131,13 +132,17 @@ async function Today({
             input={board.metric.input}
             date={board.date}
             initialValue={you?.value ?? null}
+            subtitle={board.date === board.today ? `Today · ${formatDay(board.date)}` : formatDay(board.date)}
+            triggerLabel={
+              you?.value ? `Add ${board.metric.name.toLowerCase()}` : `Log ${board.metric.name.toLowerCase()}`
+            }
           />
           {you?.value !== null && you?.value !== undefined ? (
             <form action={clearDaily}>
               <input type="hidden" name="slug" value={slug} />
               <input type="hidden" name="metricId" value={board.metric.id} />
               <input type="hidden" name="date" value={board.date} />
-              <button className={btnGhost} type="submit">
+              <button className={btnGhost} type="submit" aria-label="Clear your log for this day">
                 Clear
               </button>
             </form>
@@ -146,7 +151,18 @@ async function Today({
       </div>
 
       <div className="mt-8">
-        <h2 className="font-serif text-3xl">The day</h2>
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="font-serif text-3xl">The day</h2>
+          {crewTotal > 0 ? (
+            <p className="text-sm text-ink-soft">
+              Crew total{" "}
+              <span className="font-medium text-ink">
+                {formatValue(crewTotal, board.metric.input)}
+                {board.metric.input !== "DURATION" && board.metric.unit ? ` ${board.metric.unit}` : ""}
+              </span>
+            </p>
+          ) : null}
+        </div>
         <RankList
           input={board.metric.input}
           unit={board.metric.unit}
