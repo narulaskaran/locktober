@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { LogSheet } from "@/components/log-sheet";
+import { Pumpkin } from "@/components/pumpkin";
 import { DayLink, RankList } from "@/components/rank-list";
 import { getChallengeContext, loadDailyBoard, rankBy } from "@/lib/challenges";
 import { addDays, formatDay } from "@/lib/dates";
@@ -42,7 +43,8 @@ async function Today({
   if (!board.metric) {
     return (
       <section className="mt-8">
-        <h2 className="font-serif text-3xl">No daily tracker yet.</h2>
+        <Pumpkin size={48} />
+        <h2 className="mt-4 font-serif text-3xl">No daily tracker yet.</h2>
         <p className="mt-2 text-sm text-ink-soft">Add one from the crew page.</p>
         <Link href={`/c/${slug}/crew`} className={`${btnGhost} mt-4`}>
           Crew

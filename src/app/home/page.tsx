@@ -1,6 +1,7 @@
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Pumpkin } from "@/components/pumpkin";
 import { Wordmark } from "@/components/wordmark";
 import { loadHome } from "@/lib/challenges";
 import { formatRange } from "@/lib/dates";
@@ -56,7 +57,8 @@ async function Home({
       ) : null}
       {cards.length === 0 ? (
         <div className={`${card} mt-8 p-5`}>
-          <h2 className="font-serif text-3xl">Nothing here yet.</h2>
+          <Pumpkin size={56} />
+          <h2 className="mt-4 font-serif text-3xl">Nothing here yet.</h2>
           <p className="mt-2 text-sm text-ink-soft">
             Start a board and send the link, or open an invite from a friend.
           </p>
