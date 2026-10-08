@@ -49,6 +49,7 @@ pnpm dev
 pnpm db:migrate
 pnpm db:deploy
 pnpm lint
+pnpm typecheck
 pnpm build
 ```
 
