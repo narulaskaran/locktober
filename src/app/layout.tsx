@@ -5,6 +5,8 @@ import { Suspense } from "react";
 import { Analytics } from "@vercel/analytics/next";
 import { CopyProvider } from "@/components/copy-provider";
 import { MinionToggle } from "@/components/minion-toggle";
+import { MonthIconSprite } from "@/components/month-icon";
+import { THEME_SCRIPT } from "@/lib/themes";
 import { getVoice } from "@/lib/voice";
 import "./globals.css";
 
@@ -38,6 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
+  // The theme script swaps this for the month's paper color in the browser.
   themeColor: "#efe8dc",
   width: "device-width",
   initialScale: 1,
@@ -48,11 +51,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      // The theme script sets data-theme before React hydrates.
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${instrument.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="min-h-full">
+        <MonthIconSprite />
         <ClerkProvider
           appearance={{
+            // Text and neutrals stay fixed (every theme's ink is near-black).
+            // Surfaces go through `elements` so they can follow the theme.
             variables: {
               colorPrimary: "#1c1712",
               colorBackground: "#f6f1e7",
@@ -65,15 +76,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             },
             elements: {
               card: {
-                border: "1px solid #1c1712",
+                backgroundColor: "var(--paper-2)",
+                border: "1px solid var(--ink)",
                 borderRadius: "0px",
-                boxShadow: "3px 3px 0 #1c1712",
+                boxShadow: "3px 3px 0 var(--ink)",
               },
               header: { display: "none" },
               socialButtonsBlockButton: { borderRadius: "0px" },
-              formButtonPrimary: { borderRadius: "0px" },
-              formFieldInput: { borderRadius: "0px" },
-              footer: { background: "#f6f1e7" },
+              formButtonPrimary: {
+                borderRadius: "0px",
+                backgroundColor: "var(--ink)",
+                color: "var(--paper)",
+              },
+              formFieldInput: { borderRadius: "0px", backgroundColor: "var(--paper)" },
+              footer: { background: "var(--paper-2)" },
             },
           }}
         >

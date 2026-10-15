@@ -74,18 +74,18 @@ export function MonthChart({
           })}
           className="absolute inset-0 h-full w-full overflow-visible"
         >
-          <line x1="0" x2="100" y1="50" y2="50" stroke="#d7cec1" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-          <line x1="0" x2="100" y1="0" y2="0" stroke="#d7cec1" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+          <line x1="0" x2="100" y1="50" y2="50" strokeWidth="1" vectorEffect="non-scaling-stroke" style={{ stroke: "var(--line)" }} />
+          <line x1="0" x2="100" y1="0" y2="0" strokeWidth="1" vectorEffect="non-scaling-stroke" style={{ stroke: "var(--line)" }} />
           {through < count ? (
             <line
               x1={todayX}
               x2={todayX}
               y1="0"
               y2="100"
-              stroke="#5e564c"
               strokeWidth="1"
               strokeDasharray="3 3"
               vectorEffect="non-scaling-stroke"
+              style={{ stroke: "var(--ink-soft)" }}
             />
           ) : null}
           {[...lines]
@@ -94,12 +94,12 @@ export function MonthChart({
               <polyline
                 key={line.id}
                 fill="none"
-                stroke={line.color}
                 strokeWidth={line.isYou ? 3 : 2}
                 strokeLinejoin="round"
                 strokeLinecap="round"
                 vectorEffect="non-scaling-stroke"
                 points={[`0,100`, ...line.totals.map((total, index) => `${x(index)},${y(total)}`)].join(" ")}
+                style={{ stroke: line.color }}
               />
             ))}
         </svg>

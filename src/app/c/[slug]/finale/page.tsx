@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { LoadingLine } from "@/components/loading-line";
 import { LogSheet } from "@/components/log-sheet";
-import { Pumpkin } from "@/components/pumpkin";
+import { MonthIcon } from "@/components/month-icon";
 import { RankList } from "@/components/rank-list";
 import { getChallengeContext, loadFinaleBoard } from "@/lib/challenges";
 import { fill } from "@/lib/copy";
@@ -26,7 +26,7 @@ async function Finale({ params }: { params: Promise<{ slug: string }> }) {
   if (board.events.length === 0) {
     return (
       <section className="mt-8">
-        <Pumpkin size={48} />
+        <MonthIcon size={48} />
         <h2 className="mt-4 font-serif text-4xl">{copy.finale.emptyTitle}</h2>
         <p className="mt-2 text-sm text-ink-soft">{copy.finale.emptyBody}</p>
       </section>

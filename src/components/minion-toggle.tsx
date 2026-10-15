@@ -11,7 +11,7 @@ export function MinionToggle({ on, label }: { on: boolean; label: string }) {
       <button
         type="submit"
         aria-pressed={on}
-        className={`${on ? btnEmber : btnGhost} shadow-[3px_3px_0_#1c1712]`}
+        className={`${on ? btnEmber : btnGhost} shadow-[3px_3px_0_var(--ink)]`}
       >
         {label}
       </button>

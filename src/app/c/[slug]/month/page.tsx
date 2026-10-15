@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { LoadingLine } from "@/components/loading-line";
 import { MonthChart } from "@/components/month-chart";
-import { Pumpkin } from "@/components/pumpkin";
+import { MonthIcon } from "@/components/month-icon";
 import { getChallengeContext, loadDailyBoard, rankBy } from "@/lib/challenges";
 import { fill } from "@/lib/copy";
 import { formatDay } from "@/lib/dates";
@@ -46,7 +46,7 @@ async function Month({
   if (!board.metric) {
     return (
       <section className="mt-8">
-        <Pumpkin size={48} />
+        <MonthIcon size={48} />
         <p className="mt-4 text-sm text-ink-soft">{copy.month.needTracker}</p>
       </section>
     );
@@ -130,7 +130,7 @@ async function Month({
               <div className="flex items-baseline justify-between gap-3">
                 <p className="flex min-w-0 items-center gap-2">
                   <span className="flex w-12 shrink-0 items-center justify-end gap-1 font-serif text-lg text-ink-soft">
-                    {row.rank === 1 && harvested ? <Pumpkin size={16} /> : null}
+                    {row.rank === 1 && harvested ? <MonthIcon size={16} /> : null}
                     {row.rank ?? "–"}
                   </span>
                   {summable ? (

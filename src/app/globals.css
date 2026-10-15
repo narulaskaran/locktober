@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/*
+ * Colors are CSS variables so each month can restyle the whole app. The
+ * defaults below are November's palette (also the fallback with no JS); the
+ * other months override them in [data-theme] blocks. `ember` is the accent,
+ * `moss` the second color, `wash` the glow in the top-right corner.
+ * `data-theme` is set on <html> by the inline script in layout.tsx.
+ */
 :root {
   --paper: #efe8dc;
   --paper-2: #f6f1e7;
@@ -9,8 +16,141 @@
   --ember: #e23b14;
   --ember-deep: #b42c0c;
   --moss: #215c38;
+  --wash: #a56b12;
   --danger: #8d1d1d;
   color-scheme: light;
+}
+
+[data-theme="jan"] {
+  --paper: #ece9e0;
+  --paper-2: #f6f4ee;
+  --ink: #151823;
+  --ink-soft: #565a66;
+  --line: #d3cfc3;
+  --ember: #8a5e08;
+  --ember-deep: #684508;
+  --moss: #1d2a52;
+  --wash: #1d2a52;
+}
+
+[data-theme="feb"] {
+  --paper: #f3e4e3;
+  --paper-2: #faf1f0;
+  --ink: #2a1218;
+  --ink-soft: #6a4f55;
+  --line: #e0c8c8;
+  --ember: #c2185b;
+  --ember-deep: #97124a;
+  --moss: #6b2d5c;
+  --wash: #6b2d5c;
+}
+
+[data-theme="mar"] {
+  --paper: #e6eee0;
+  --paper-2: #f1f6ec;
+  --ink: #11231a;
+  --ink-soft: #4f6256;
+  --line: #cbd8c3;
+  --ember: #1d7a43;
+  --ember-deep: #145c31;
+  --moss: #85600a;
+  --wash: #85600a;
+}
+
+[data-theme="apr"] {
+  --paper: #e4edf1;
+  --paper-2: #f1f6f8;
+  --ink: #12212b;
+  --ink-soft: #52646f;
+  --line: #c6d5dc;
+  --ember: #2f67a3;
+  --ember-deep: #234f80;
+  --moss: #b8456f;
+  --wash: #b8456f;
+}
+
+[data-theme="may"] {
+  --paper: #eee8f2;
+  --paper-2: #f7f3fa;
+  --ink: #1f1528;
+  --ink-soft: #5f5469;
+  --line: #d7cde0;
+  --ember: #7a46b0;
+  --ember-deep: #5d3389;
+  --moss: #3b7a3d;
+  --wash: #3b7a3d;
+}
+
+[data-theme="jun"] {
+  --paper: #f5ecd0;
+  --paper-2: #fbf5e0;
+  --ink: #231a0c;
+  --ink-soft: #6a5a3c;
+  --line: #e0d3a8;
+  --ember: #ae4f06;
+  --ember-deep: #863c05;
+  --moss: #1f6fae;
+  --wash: #1f6fae;
+}
+
+[data-theme="jul"] {
+  --paper: #eceef2;
+  --paper-2: #f4f6fa;
+  --ink: #101a33;
+  --ink-soft: #4f5a75;
+  --line: #ccd2e0;
+  --ember: #c0272d;
+  --ember-deep: #96191e;
+  --moss: #1f3f8f;
+  --wash: #1f3f8f;
+}
+
+[data-theme="aug"] {
+  --paper: #f1e6cf;
+  --paper-2: #f8f0de;
+  --ink: #10262a;
+  --ink-soft: #51666a;
+  --line: #dccfb0;
+  --ember: #0b7270;
+  --ember-deep: #085856;
+  --moss: #bd402a;
+  --wash: #bd402a;
+}
+
+[data-theme="sep"] {
+  --paper: #efe7d6;
+  --paper-2: #f7f1e3;
+  --ink: #241a12;
+  --ink-soft: #62574a;
+  --line: #d8ccb4;
+  --ember: #a2421c;
+  --ember-deep: #7d3213;
+  --moss: #5d6b2b;
+  --wash: #5d6b2b;
+}
+
+[data-theme="oct"] {
+  --paper: #ebe6ef;
+  --paper-2: #f4f1f7;
+  --ink: #170f20;
+  --ink-soft: #5a4f66;
+  --line: #d3cbdc;
+  --ember: #c2410c;
+  --ember-deep: #9a330a;
+  --moss: #5b2a86;
+  --wash: #5b2a86;
+}
+
+[data-theme="dec"] {
+  --paper: #eaeeed;
+  --paper-2: #f4f7f6;
+  --ink: #14211b;
+  --ink-soft: #52625a;
+  --line: #ccd6d1;
+  --ember: #b3202a;
+  --ember-deep: #8c1520;
+  --moss: #1f5a3a;
+  --wash: #1f5a3a;
 }
 
 @theme inline {
@@ -31,15 +171,125 @@
 body {
   background-color: var(--paper);
   background-image:
-    radial-gradient(900px 420px at 0% -10%, rgb(226 59 20 / 0.08), transparent 55%),
-    radial-gradient(700px 380px at 100% 0%, rgb(165 107 18 / 0.07), transparent 50%);
+    radial-gradient(900px 420px at 0% -10%, color-mix(in srgb, var(--ember) 8%, transparent), transparent 55%),
+    radial-gradient(700px 380px at 100% 0%, color-mix(in srgb, var(--wash) 7%, transparent), transparent 50%);
   color: var(--ink);
   font-family: var(--font-sans), sans-serif;
 }
 
 ::selection {
-  background: #1c1712;
-  color: #f6f1e7;
+  background: var(--ink);
+  color: var(--paper-2);
+}
+
+/* The month icon is one sprite; CSS shows the symbol for the active theme. */
+.month-icon use {
+  display: none;
+}
+
+:root:not([data-theme]) .month-icon .mi-nov {
+  display: inline;
+}
+
+[data-theme="jan"] .month-icon .mi-jan {
+  display: inline;
+}
+
+[data-theme="feb"] .month-icon .mi-feb {
+  display: inline;
+}
+
+[data-theme="mar"] .month-icon .mi-mar {
+  display: inline;
+}
+
+[data-theme="apr"] .month-icon .mi-apr {
+  display: inline;
+}
+
+[data-theme="may"] .month-icon .mi-may {
+  display: inline;
+}
+
+[data-theme="jun"] .month-icon .mi-jun {
+  display: inline;
+}
+
+[data-theme="jul"] .month-icon .mi-jul {
+  display: inline;
+}
+
+[data-theme="aug"] .month-icon .mi-aug {
+  display: inline;
+}
+
+[data-theme="sep"] .month-icon .mi-sep {
+  display: inline;
+}
+
+[data-theme="oct"] .month-icon .mi-oct {
+  display: inline;
+}
+
+[data-theme="dec"] .month-icon .mi-dec {
+  display: inline;
+}
+
+[data-theme="nov"] .month-icon .mi-nov {
+  display: inline;
+}
+
+/* The current month's name, readable before hydration and without JS state. */
+.month-name::after {
+  content: "November";
+}
+
+[data-theme="jan"] .month-name::after {
+  content: "January";
+}
+
+[data-theme="feb"] .month-name::after {
+  content: "February";
+}
+
+[data-theme="mar"] .month-name::after {
+  content: "March";
+}
+
+[data-theme="apr"] .month-name::after {
+  content: "April";
+}
+
+[data-theme="may"] .month-name::after {
+  content: "May";
+}
+
+[data-theme="jun"] .month-name::after {
+  content: "June";
+}
+
+[data-theme="jul"] .month-name::after {
+  content: "July";
+}
+
+[data-theme="aug"] .month-name::after {
+  content: "August";
+}
+
+[data-theme="sep"] .month-name::after {
+  content: "September";
+}
+
+[data-theme="oct"] .month-name::after {
+  content: "October";
+}
+
+[data-theme="dec"] .month-name::after {
+  content: "December";
+}
+
+[data-theme="nov"] .month-name::after {
+  content: "November";
 }
 
 /* Unlayered rules beat Tailwind's utility layer, so form resets live in base. */
