@@ -1,7 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Pumpkin, PumpkinPatch } from "@/components/pumpkin";
+import { MonthIcon, MonthIconPatch } from "@/components/month-icon";
+import { MonthText } from "@/components/month-text";
 import { Wordmark } from "@/components/wordmark";
 import { fill } from "@/lib/copy";
 import { btnEmber, btnGhost, card } from "@/lib/styles";
@@ -35,13 +36,13 @@ async function Landing() {
       <main className="grid items-center gap-12 py-14 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-ember">
-            {copy.landing.kicker}
+            <MonthText text={copy.landing.kicker} />
           </p>
           <h1 className="mt-4 max-w-xl font-serif text-6xl leading-[0.9] tracking-tight sm:text-8xl">
             {copy.landing.hero}
           </h1>
           <div className="mt-8 w-fit" aria-hidden="true">
-            <PumpkinPatch />
+            <MonthIconPatch />
             <div className="mt-1 h-px bg-ink" />
           </div>
           <p className="mt-6 max-w-md text-lg leading-relaxed text-ink-soft">
@@ -82,7 +83,7 @@ async function Landing() {
             {sample.map((row) => (
               <li key={row.name} className="flex items-center gap-3 border-b border-line py-3">
                 <span className="flex w-9 shrink-0 items-center justify-end gap-1 font-serif text-ink-soft">
-                  {row.rank === "1" ? <Pumpkin size={16} /> : null}
+                  {row.rank === "1" ? <MonthIcon size={16} /> : null}
                   {row.rank}
                 </span>
                 <span className="flex-1 font-medium">{row.name}</span>

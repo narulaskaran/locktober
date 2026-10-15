@@ -39,7 +39,7 @@ export const english = {
     invite: "Opening the invite…",
   },
   landing: {
-    kicker: "October, locked in",
+    kicker: "{month}, locked in",
     hero: "A month on the board.",
     lede: "Locktober is a private scoreboard for the people you actually train with. Log the day, watch the month add up, and settle it with one finale.",
     start: "Start a board",
@@ -212,7 +212,7 @@ export const english = {
     setting: "Setting the month…",
     cancel: "Cancel",
     name: "Board name",
-    namePlaceholder: "October push-ups",
+    namePlaceholder: "Push-up month",
     starts: "Starts",
     ends: "Ends",
     timezone: "Timezone for “today”",

@@ -25,7 +25,7 @@ Private multi-tenant fitness boards. One repo, one Next.js app. Friends join a c
 - `src/lib/templates.ts` — starting trackers. Add a template here
 - `src/components/score-form.tsx`, `log-sheet.tsx` — the logging UI. Daily logs offer "Add to today" or "Set total"; finale scores always replace
 - `src/components/month-chart.tsx` — server-rendered SVG running totals. Colors come from `src/lib/palette.ts`
-- `src/app/manifest.ts`, `public/icon-*.png`, `src/app/apple-icon.png` — home-screen install
+- `src/lib/themes.ts`, `src/components/month-icon.tsx`, the `[data-theme]` blocks in `src/app/globals.css` — the monthly theme (see UI). The home-screen install files (`src/app/manifest.ts`, `public/icon-*.png`, `src/app/apple-icon.png`) are static and do not change by month
 - `prisma/schema.prisma` — User, Challenge, ChallengeMember, Metric, Entry, FinaleEntry
 
 Daily logs live on `Entry` (one value per person, metric, and calendar date). Finale scores live on `FinaleEntry` (one value per person and metric). `Metric.kind` is `DAILY` or `FINALE`. `Metric.input` is `COUNT`, `DECIMAL`, or `DURATION` (seconds). Timed metrics rank lower-is-better.
@@ -62,6 +62,8 @@ pnpm build
 
 ## UI
 
-The visual system is paper, ink, and one ember accent. It is defined in `src/app/globals.css` and `src/lib/styles.ts`. Keep new screens on those tokens. Touch targets stay at least 44px. The challenge tabs are fixed to the bottom on small screens.
+The visual system is paper, ink, and one ember accent. It is defined in `src/app/globals.css` and `src/lib/styles.ts`. Keep new screens on those tokens, and never hardcode a hex in a component, since every color has to follow the month. Touch targets stay at least 44px. The challenge tabs are fixed to the bottom on small screens.
+
+Each month has its own theme: a palette (`[data-theme="jan"]` and so on in `globals.css`, with November as the `:root` default) and an icon (`month-icon.tsx`). A blocking script in `<head>` (`THEME_SCRIPT` in `themes.ts`) sets `data-theme` from the visitor's local month, so the server render never reads the date. `?theme=dec` previews a month for the tab's session and `?theme=auto` resets it. The token names are not renamed per theme: `ember` is the accent and `moss` the second color. To add or change a month, edit its CSS block and its `<g id="mi-…">` in the sprite. Check that button text on `ember` stays at 4.5:1 or better. Use `MonthIcon` for the icon and `MonthText` for copy containing `{month}`.
 
 Global element resets go inside `@layer base` in `globals.css`. An unlayered rule beats every Tailwind utility, which is how `font: inherit` once silently overrode `text-sm` and `text-5xl` on all inputs and buttons. Number entry is a text input with `inputMode`, not `type="number"`, so the field can be empty and never shows "075".
