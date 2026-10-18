@@ -12,6 +12,15 @@ export const english = {
     description:
       "A private scoreboard for a month-long lock-in. Daily volume, a running total, and one finale.",
   },
+  install: {
+    label: "Install Locktober",
+    title: "Put it on your home screen",
+    androidBlurb: "Install Locktober as an app with its own icon on your home screen.",
+    button: "Install app",
+    iosStep1: "Tap the share button",
+    iosStep2: "then choose \u201cAdd to Home Screen\u201d",
+    iosStep3: "and confirm.",
+  },
   mode: {
     enter: "Minion mode",
     exit: "Poopaye",
@@ -324,6 +333,15 @@ export const minion = {
     title: "Bellober",
     titleTemplate: "%s · Bellober",
     description: "Secret banana board. Day day count, moon stack, one kaboom.",
+  },
+  install: {
+    label: "Install Bellober",
+    title: "Puet et on yor hoem screen",
+    androidBlurb: "Instal Bellober as won app wit ets own icon on yor hoem screen.",
+    button: "Instal app",
+    iosStep1: "Tap da share button",
+    iosStep2: "den pick \u201cAdd to Home Screen\u201d",
+    iosStep3: "and papoy.",
   },
   mode: {
     enter: "Minion mode",

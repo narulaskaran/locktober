@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Offline · Locktober</title>
+    <style>
+      :root {
+        --paper: #efe8dc;
+        --ink: #1c1712;
+        --ink-soft: #5e564c;
+        --ember: #e23b14;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: system-ui, sans-serif;
+        min-height: 100dvh;
+      }
+      main {
+        max-width: 28rem;
+        margin: 0 auto;
+        padding: 4rem 1.25rem;
+      }
+      p.kicker {
+        margin: 0;
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--ember);
+      }
+      h1 {
+        margin: 1rem 0 0.5rem;
+        font-size: 3rem;
+        line-height: 0.9;
+        letter-spacing: -0.02em;
+      }
+      p {
+        margin: 0;
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
+      button {
+        margin-top: 2rem;
+        min-height: 44px;
+        border: 1px solid var(--ink);
+        background: var(--ink);
+        color: var(--paper);
+        padding: 0 1rem;
+        font: inherit;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="kicker">Offline</p>
+      <h1>No connection.</h1>
+      <p>The board needs the network to keep everyone's numbers honest. Check your connection and try again.</p>
+      <button onclick="location.reload()">Try again</button>
+    </main>
+  </body>
+</html>
