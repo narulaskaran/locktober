@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { Suspense } from "react";
 import { Analytics } from "@vercel/analytics/next";
 import { CopyProvider } from "@/components/copy-provider";
+import { InstallPrompt, ServiceWorkerRegistrar } from "@/components/install-prompt";
 import { MinionToggle } from "@/components/minion-toggle";
 import { MonthIconSprite } from "@/components/month-icon";
 import { THEME_SCRIPT } from "@/lib/themes";
@@ -108,7 +109,9 @@ async function VoicedShell({ children }: { children: React.ReactNode }) {
   return (
     <CopyProvider copy={copy}>
       {children}
+      <InstallPrompt />
       <MinionToggle on={minion} label={minion ? copy.mode.exit : copy.mode.enter} />
+      <ServiceWorkerRegistrar />
     </CopyProvider>
   );
 }
