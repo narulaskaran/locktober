@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { MonthIcon, MonthIconPatch } from "@/components/month-icon";
 import { MonthText } from "@/components/month-text";
@@ -17,6 +18,9 @@ export default function Home() {
 }
 
 async function Landing() {
+  const { userId } = await auth();
+  if (userId) redirect("/home");
+
   const { copy } = await getVoice();
   const sample = [
     { rank: "1", name: copy.landing.sampleName1, today: "180", month: "2,410" },
@@ -28,9 +32,9 @@ async function Landing() {
     <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 py-5 sm:px-8">
       <header className="flex items-center justify-between gap-4">
         <Wordmark />
-        <Suspense fallback={<span className="h-11 w-28 border border-transparent" />}>
-          <AccountLink boards={copy.landing.yourBoards} signIn={copy.landing.signIn} />
-        </Suspense>
+        <Link href="/sign-in" className={btnInkLink}>
+          {copy.landing.signIn}
+        </Link>
       </header>
 
       <main className="grid items-center gap-12 py-14 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
@@ -100,22 +104,6 @@ async function Landing() {
         </aside>
       </main>
     </div>
-  );
-}
-
-async function AccountLink({ boards, signIn }: { boards: string; signIn: string }) {
-  const { userId } = await auth();
-  if (userId) {
-    return (
-      <Link href="/home" className={btnInkLink}>
-        {boards}
-      </Link>
-    );
-  }
-  return (
-    <Link href="/sign-in" className={btnInkLink}>
-      {signIn}
-    </Link>
   );
 }
 
